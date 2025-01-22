@@ -1,1 +1,1 @@
-# Toucanhub.Sdk.Telemetry
+# Toucan.Sdk.Telemetry
