@@ -66,39 +66,6 @@ public static class TokenClaimNames
     public const string Address = "address";
     public const string UpdatedAt = "updated_at";
 }
-public static class JwtToken
-{
-    public static TokenValidationParameters TokenValidationParameters(this JwtTokenConfig config, AuthTokenConfig auth, SecurityKey encryptionKey)
-    {
-        return new TokenValidationParameters
-        {
-            ValidAudience = auth.Audience,
-            ValidIssuer = auth.Issuer,
-            ValidIssuers = [auth.Issuer],
-            //SignatureValidator = delegate (string token, TokenValidationParameters parameters)
-            //{
-            //    var jwt = new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(token);
-            //    return jwt;
-            //},
-            AuthenticationType = auth.Scheme,
-            TokenDecryptionKey = encryptionKey,
-            IssuerSigningKey = encryptionKey,
-            RoleClaimType = ClaimTypes.Role,
-            NameClaimType = ClaimTypes.Name,
-            ValidAlgorithms = [SecurityAlgorithms.HmacSha256, SecurityAlgorithms.HmacSha384, SecurityAlgorithms.HmacSha512, SecurityAlgorithms.Aes256CbcHmacSha512],
-            IgnoreTrailingSlashWhenValidatingAudience = true,
-            RequireAudience = true,
-            RequireSignedTokens = true,
-            SaveSigninToken = true,
-            ValidateLifetime = config.ValidateLifetime,
-            ValidateIssuer = config.ValidateIssuer,
-            ValidateAudience = config.ValidateAudience,
-
-            RequireExpirationTime = config.RequireExpirationTime,
-            ValidateIssuerSigningKey = config.ValidateIssuerSigningKey,
-        };
-    }
-}
 
 public static class Grants
 {
