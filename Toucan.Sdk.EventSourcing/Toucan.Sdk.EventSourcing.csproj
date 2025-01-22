@@ -5,5 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>Toucan.Sdk.EventSourcing</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Christian Bourbier</Authors>
+    <Company>Christian Bourbier</Company>
+    <PackageDescription>Sdk EventSourcing</PackageDescription>
+    <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 </Project>
