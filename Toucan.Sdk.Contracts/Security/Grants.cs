@@ -1,7 +1,4 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-
-namespace Toucan.Sdk.Contracts.Security;
+﻿namespace Toucan.Sdk.Contracts.Security;
 
 public delegate string TokenSignKeyProvider();
 
