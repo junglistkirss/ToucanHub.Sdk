@@ -1,0 +1,173 @@
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+
+namespace Toucan.Sdk.Utils;
+
+
+public static class Guard
+{
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static void ValidNumber(float target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    if (float.IsNaN(target) || float.IsPositiveInfinity(target) || float.IsNegativeInfinity(target))
+    //        throw new ArgumentException("Value must be a valid number.", parameterName);
+    //}
+
+    [DebuggerStepThrough]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void ValidNumber(double target,
+        [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    {
+        if (double.IsNaN(target) || double.IsPositiveInfinity(target) || double.IsNegativeInfinity(target))
+            throw new ArgumentException("Value must be a valid number.", parameterName);
+    }
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static void HasType<T>(object target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    if (target != null && target.GetType() != typeof(T))
+    //        throw new ArgumentException($"The parameter must be of type {typeof(T)}", parameterName);
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static void HasType(object target, Type expectedType,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    if (target != null && expectedType != null && target.GetType() != expectedType)
+    //        throw new ArgumentException($"The parameter must be of type {expectedType}", parameterName);
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static void Between<TValue>(TValue target, TValue lower, TValue upper,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TValue : IComparable
+    //{
+    //    if (!target.IsBetween(lower, upper))
+    //        throw new ArgumentException($"Value must be between {lower} and {upper}", parameterName);
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TEnum Enum<TEnum>(TEnum target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TEnum : struct
+    //{
+    //    if (!target.IsEnumValue())
+    //        throw new ArgumentException($"Value must be a valid enum type {typeof(TEnum)}", parameterName);
+
+    //    return target;
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TValue GreaterThan<TValue>(TValue target, TValue lower,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TValue : IComparable
+    //{
+    //    if (target.CompareTo(lower) <= 0)
+    //        throw new ArgumentException($"Value must be greater than {lower}", parameterName);
+
+    //    return target;
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TValue GreaterEquals<TValue>(TValue target, TValue lower,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TValue : IComparable
+    //{
+    //    if (target.CompareTo(lower) < 0)
+    //        throw new ArgumentException($"Value must be greater or equal to {lower}", parameterName);
+    //    return target;
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TValue LessThan<TValue>(TValue target, TValue upper,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TValue : IComparable
+    //{
+    //    if (target.CompareTo(upper) >= 0)
+    //        throw new ArgumentException($"Value must be less than {upper}", parameterName);
+    //    return target;
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static TValue LessEquals<TValue>(TValue target, TValue upper,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null) where TValue : IComparable
+    //{
+    //    if (target.CompareTo(upper) > 0)
+    //        throw new ArgumentException($"Value must be less or equal to {upper}", parameterName);
+    //    return target;
+    //}
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static void NotEmpty<TType>(IReadOnlyCollection<TType>? target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    ArgumentNullException.ThrowIfNull(target, parameterName);
+
+    //    if (target != null && target.Count == 0)
+    //        throw new ArgumentException("Collection does not contain an item.", parameterName);
+    //}
+
+    [DebuggerStepThrough]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotEmpty(Guid target,
+        [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    {
+        if (target == Guid.Empty)
+            throw new ArgumentException("Value cannot be empty.", parameterName);
+    }
+
+
+    [DebuggerStepThrough]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T NotDefault<T>(T target,
+        [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    {
+        if (Equals(target, default(T)!))
+            throw new ArgumentException("Value cannot be an the default value.", parameterName);
+
+        return target;
+    }
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static string NotNullOnly(string? target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    ArgumentNullException.ThrowIfNull(target, parameterName);
+    //    return target!;
+    //}
+
+    [DebuggerStepThrough]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string NotNullOrEmpty(string? target,
+        [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    {
+        ArgumentNullException.ThrowIfNull(target, parameterName);
+
+        if (string.IsNullOrWhiteSpace(target))
+            throw new ArgumentException("String parameter cannot be null or empty and cannot contain only blanks.", parameterName);
+
+        return target;
+    }
+
+    //[DebuggerStepThrough]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //public static string ValidFileName(string target,
+    //    [CallerArgumentExpression(nameof(target))] string? parameterName = null)
+    //{
+    //    _ = NotNullOrEmpty(target, parameterName);
+
+    //    if (target != null && target.Intersect(Path.GetInvalidFileNameChars()).Any())
+    //        throw new ArgumentException("Value contains an invalid character.", parameterName);
+
+    //    return target!;
+    //}
+}
+

@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Contracts", "Toucan.Sdk.Contracts\Toucan.Sdk.Contracts.csproj", "{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.EventSourcing", "Toucan.Sdk.EventSourcing\Toucan.Sdk.EventSourcing.csproj", "{655C1C35-294F-4DAF-9D87-A7846579326D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Infrastructure", "Toucan.Sdk.Infrastructure\Toucan.Sdk.Infrastructure.csproj", "{EB5C4D06-68D8-481D-9F3D-8BD491610C70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Pipeline", "Toucan.Sdk.Pipeline\Toucan.Sdk.Pipeline.csproj", "{B74673E5-8A8E-470E-9124-63F59C441D46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Telemetry", "Toucan.Sdk.Telemetry\Toucan.Sdk.Telemetry.csproj", "{025EB0E8-5169-4684-91B4-8297A1386667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Utils", "Toucan.Sdk.Utils\Toucan.Sdk.Utils.csproj", "{90DE0BA6-EC94-4EE7-9CDF-C6610056B8E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{655C1C35-294F-4DAF-9D87-A7846579326D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{655C1C35-294F-4DAF-9D87-A7846579326D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{655C1C35-294F-4DAF-9D87-A7846579326D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{655C1C35-294F-4DAF-9D87-A7846579326D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB5C4D06-68D8-481D-9F3D-8BD491610C70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB5C4D06-68D8-481D-9F3D-8BD491610C70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB5C4D06-68D8-481D-9F3D-8BD491610C70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB5C4D06-68D8-481D-9F3D-8BD491610C70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B74673E5-8A8E-470E-9124-63F59C441D46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74673E5-8A8E-470E-9124-63F59C441D46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74673E5-8A8E-470E-9124-63F59C441D46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74673E5-8A8E-470E-9124-63F59C441D46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{025EB0E8-5169-4684-91B4-8297A1386667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{025EB0E8-5169-4684-91B4-8297A1386667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{025EB0E8-5169-4684-91B4-8297A1386667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{025EB0E8-5169-4684-91B4-8297A1386667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90DE0BA6-EC94-4EE7-9CDF-C6610056B8E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90DE0BA6-EC94-4EE7-9CDF-C6610056B8E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90DE0BA6-EC94-4EE7-9CDF-C6610056B8E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90DE0BA6-EC94-4EE7-9CDF-C6610056B8E9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
