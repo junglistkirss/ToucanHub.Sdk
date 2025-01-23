@@ -8,5 +8,5 @@ on:
 jobs:
   build-and-tests:
     uses: ./.github/workflows/build.yml
-    with: 
+    secrets: 
       token: ${{ secrets.NUGET_TOKEN }}
