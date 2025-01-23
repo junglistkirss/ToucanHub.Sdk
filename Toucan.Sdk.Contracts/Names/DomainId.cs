@@ -6,7 +6,7 @@ namespace Toucan.Sdk.Contracts.Names;
 [DebuggerDisplay("{Id,nq}")]
 public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, IParsable<DomainId>
 {
-    private static readonly string EmptyRawValueId = Guid.Empty.ToString();
+    private static readonly string EmptyRawValueId = Guid.Empty.ToString("N");
     public static readonly DomainId Empty = new(EmptyRawValueId!);
     public static readonly char IdSeparator = '~';
 
@@ -80,7 +80,7 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
         if (value == Guid.Empty)
             return Empty;
 
-        return new DomainId(value.ToString());
+        return new DomainId(value.ToString("N"));
     }
 
     public override bool Equals(object? obj) => obj is DomainId status && Equals(status);
