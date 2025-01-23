@@ -1,0 +1,12 @@
+name: Check .NET
+
+on:
+  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-tests:
+    uses: ./.github/workflows/build.yml
+    with: 
+      token: ${{ secrets.NUGET_TOKEN }}
