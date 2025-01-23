@@ -1,0 +1,35 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    open-pull-requests-limit: 10
+    groups:
+      dotnet:
+        patterns:
+          - "*" # Prefer a single PR per solution update.
+  # NuGet packages
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+    registries: "*"
+    open-pull-requests-limit: 25
+    groups:
+      dotnet:
+        patterns:
+          - "*"
+
+registries:
+  github-nuget:
+    type: nuget-feed
+    url: https://nuget.pkg.github.com/junglistkirss/index.json
+    username: junglistkirss
+    password: ${{ secrets.DEPENDABOT_NUGET_TOKEN }}
+  nuget-official:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
