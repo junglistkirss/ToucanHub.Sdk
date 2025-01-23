@@ -30,7 +30,7 @@ jobs:
     - name: Merge Coverage Reports
       uses: danielpalme/ReportGenerator-GitHub-Action@5.4.3
       with:
-        reports: ./coverage/**/coverage.cobertura.xml
+        reports: ./**/coverage.cobertura.xml
         targetdir: ./coveragereport
         reporttypes: Cobertura
       
