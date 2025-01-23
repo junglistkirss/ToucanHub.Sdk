@@ -25,12 +25,12 @@ jobs:
       run: dotnet restore
 
     - name: Test
-      run: dotnet test --verbosity normal
+      run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Merge Coverage Reports
       uses: danielpalme/ReportGenerator-GitHub-Action@5.4.3
       with:
-        reports: ./**/coverage.cobertura.xml
+        reports: ./coverage/**/coverage.cobertura.xml
         targetdir: ./coveragereport
         reporttypes: Cobertura
       
