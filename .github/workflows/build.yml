@@ -45,4 +45,4 @@ jobs:
         hide_complexity: false
         indicators: true
         output: both
-        thresholds: '${{ vars.MIN_COVERAGE_THRESHOLD }} 80'
+        thresholds: '${{ vars.MIN_COVERAGE_THRESHOLD || 1 }} 80'
