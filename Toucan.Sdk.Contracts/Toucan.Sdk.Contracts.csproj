@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Contracts</PackageId>
-    <Version>1.1.0</Version>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Contracts</PackageDescription>

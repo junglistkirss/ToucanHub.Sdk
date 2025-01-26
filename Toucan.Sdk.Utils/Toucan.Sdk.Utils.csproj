@@ -8,7 +8,7 @@
   
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Utils</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Utils</PackageDescription>

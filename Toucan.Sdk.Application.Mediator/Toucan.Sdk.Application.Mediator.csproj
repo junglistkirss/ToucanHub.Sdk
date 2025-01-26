@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>Toucan.Sdk.Application.Mediator</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Christian Bourbier</Authors>
+    <Company>Christian Bourbier</Company>
+    <PackageDescription>Sdk Application Mediator</PackageDescription>
+    <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Consumers\FaultConsumer.cs" />
+    <Compile Remove="Internals\CommandContextFilter.cs" />
+    <Compile Remove="Internals\MediatorCommandContext.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Toucan.Sdk.Application\Toucan.Sdk.Application.csproj" />
+    <ProjectReference Include="..\Toucan.Sdk.Core\Toucan.Sdk.Core.csproj" />
+  </ItemGroup>
+
+</Project>

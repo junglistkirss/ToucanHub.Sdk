@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Contracts", "Toucan.Sdk.Contracts\Toucan.Sdk.Contracts.csproj", "{9FFBEEE4-8C6B-4BDB-8E4A-5F5C4BE02AF1}"
 EndProject
@@ -20,6 +20,32 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Pipeline.Tests", "Toucan.Sdk.Pipeline.Tests\Toucan.Sdk.Pipeline.Tests.csproj", "{EF187826-90BA-4A1D-8969-08E0C620CD08}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Utils.Tests", "Toucan.Sdk.Utils.Tests\Toucan.Sdk.Utils.Tests.csproj", "{26949127-72CB-4F52-BAB2-1F4442E327B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Api", "Toucan.Sdk.Api\Toucan.Sdk.Api.csproj", "{CF183BE2-C592-46AD-8E8F-A738F607CEE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Api.Client", "Toucan.Sdk.Api.Client\Toucan.Sdk.Api.Client.csproj", "{78A9DDA4-279F-4D50-A216-C13EEF8E9274}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Api.Contracts", "Toucan.Sdk.Api.Contracts\Toucan.Sdk.Api.Contracts.csproj", "{635FE257-58A7-4B7B-B612-91F18522D940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Application", "Toucan.Sdk.Application\Toucan.Sdk.Application.csproj", "{6A6DD02B-F270-49E9-A7D5-2091947B9E9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Api.Contracts.Tests", "Toucan.Sdk.Api.Contracts.Tests\Toucan.Sdk.Api.Contracts.Tests.csproj", "{1726732C-81C3-4BA2-B6D5-D03C1012420D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Application.Broker", "Toucan.Sdk.Application.Broker\Toucan.Sdk.Application.Broker.csproj", "{A5AF7192-DA32-4D9C-9903-979FDC9A05DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Application.Mediator", "Toucan.Sdk.Application.Mediator\Toucan.Sdk.Application.Mediator.csproj", "{AD65CA3D-63EA-4A64-949D-F279FC042176}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Core", "Toucan.Sdk.Core\Toucan.Sdk.Core.csproj", "{E50F2E72-95C8-4E2F-B5DB-F30DC297F02E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Interpreter", "Toucan.Sdk.Interpreter\Toucan.Sdk.Interpreter.csproj", "{95D7D421-D562-4F08-9F53-FE386A68BD7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Reactive", "Toucan.Sdk.Reactive\Toucan.Sdk.Reactive.csproj", "{6DDFA561-0B56-4346-802F-CC7DBCF89130}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Shared", "Toucan.Sdk.Shared\Toucan.Sdk.Shared.csproj", "{161EB31A-69C6-4355-9947-056CE2B47D97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Shared.Tests", "Toucan.Sdk.Shared.Tests\Toucan.Sdk.Shared.Tests.csproj", "{D0EED23A-97D3-42AF-A763-1010589CFE64}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Store", "Toucan.Sdk.Store\Toucan.Sdk.Store.csproj", "{1F85C044-D97E-49AF-BB28-3DC6B6E7E95A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +89,58 @@ Global
 		{26949127-72CB-4F52-BAB2-1F4442E327B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26949127-72CB-4F52-BAB2-1F4442E327B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{26949127-72CB-4F52-BAB2-1F4442E327B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF183BE2-C592-46AD-8E8F-A738F607CEE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF183BE2-C592-46AD-8E8F-A738F607CEE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF183BE2-C592-46AD-8E8F-A738F607CEE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF183BE2-C592-46AD-8E8F-A738F607CEE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78A9DDA4-279F-4D50-A216-C13EEF8E9274}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78A9DDA4-279F-4D50-A216-C13EEF8E9274}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78A9DDA4-279F-4D50-A216-C13EEF8E9274}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78A9DDA4-279F-4D50-A216-C13EEF8E9274}.Release|Any CPU.Build.0 = Release|Any CPU
+		{635FE257-58A7-4B7B-B612-91F18522D940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{635FE257-58A7-4B7B-B612-91F18522D940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{635FE257-58A7-4B7B-B612-91F18522D940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{635FE257-58A7-4B7B-B612-91F18522D940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A6DD02B-F270-49E9-A7D5-2091947B9E9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A6DD02B-F270-49E9-A7D5-2091947B9E9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A6DD02B-F270-49E9-A7D5-2091947B9E9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A6DD02B-F270-49E9-A7D5-2091947B9E9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1726732C-81C3-4BA2-B6D5-D03C1012420D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1726732C-81C3-4BA2-B6D5-D03C1012420D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1726732C-81C3-4BA2-B6D5-D03C1012420D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1726732C-81C3-4BA2-B6D5-D03C1012420D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5AF7192-DA32-4D9C-9903-979FDC9A05DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5AF7192-DA32-4D9C-9903-979FDC9A05DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5AF7192-DA32-4D9C-9903-979FDC9A05DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5AF7192-DA32-4D9C-9903-979FDC9A05DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD65CA3D-63EA-4A64-949D-F279FC042176}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD65CA3D-63EA-4A64-949D-F279FC042176}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD65CA3D-63EA-4A64-949D-F279FC042176}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD65CA3D-63EA-4A64-949D-F279FC042176}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E50F2E72-95C8-4E2F-B5DB-F30DC297F02E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E50F2E72-95C8-4E2F-B5DB-F30DC297F02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E50F2E72-95C8-4E2F-B5DB-F30DC297F02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E50F2E72-95C8-4E2F-B5DB-F30DC297F02E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D7D421-D562-4F08-9F53-FE386A68BD7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D7D421-D562-4F08-9F53-FE386A68BD7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D7D421-D562-4F08-9F53-FE386A68BD7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D7D421-D562-4F08-9F53-FE386A68BD7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DDFA561-0B56-4346-802F-CC7DBCF89130}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DDFA561-0B56-4346-802F-CC7DBCF89130}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DDFA561-0B56-4346-802F-CC7DBCF89130}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DDFA561-0B56-4346-802F-CC7DBCF89130}.Release|Any CPU.Build.0 = Release|Any CPU
+		{161EB31A-69C6-4355-9947-056CE2B47D97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{161EB31A-69C6-4355-9947-056CE2B47D97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{161EB31A-69C6-4355-9947-056CE2B47D97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{161EB31A-69C6-4355-9947-056CE2B47D97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0EED23A-97D3-42AF-A763-1010589CFE64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0EED23A-97D3-42AF-A763-1010589CFE64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0EED23A-97D3-42AF-A763-1010589CFE64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0EED23A-97D3-42AF-A763-1010589CFE64}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F85C044-D97E-49AF-BB28-3DC6B6E7E95A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F85C044-D97E-49AF-BB28-3DC6B6E7E95A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F85C044-D97E-49AF-BB28-3DC6B6E7E95A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F85C044-D97E-49AF-BB28-3DC6B6E7E95A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

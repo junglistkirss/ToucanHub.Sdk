@@ -72,21 +72,21 @@ public static class CollectionExtensions
     //    return target.TakeWhile((_, i) => i < maxCount);
     //}
 
-    public static ICollection<T> AddRange<T>(this ICollection<T> target, params T[] source)
-    {
-        ArgumentNullException.ThrowIfNull(target);
+    //public static ICollection<T> AddRange<T>(this ICollection<T> target, params T[] source)
+    //{
+    //    ArgumentNullException.ThrowIfNull(target);
 
-        if (source is not null)
-        {
-            foreach (T value in source)
-            {
-                if (value is not null)
-                    target.Add(value);
-            }
-        }
+    //    if (source is not null)
+    //    {
+    //        foreach (T value in source)
+    //        {
+    //            if (value is not null)
+    //                target.Add(value);
+    //        }
+    //    }
 
-        return target;
-    }
+    //    return target;
+    //}
 
     public static ICollection<T> AddRange<T>(this ICollection<T> target, IEnumerable<T> source)
     {

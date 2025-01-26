@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Infrastructure</PackageId>
-    <Version>1.0.0</Version>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Infrastructure</PackageDescription>
