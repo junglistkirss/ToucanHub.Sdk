@@ -8,8 +8,7 @@ public class NamesTests
     public void SlugEquals()
     {
         Assert.Equal(Slug.Parse("TEST"), Slug.Create("test"));
-        Assert.Equal(Slug.Parse("TEST-A"), Slug.Create("test-a"));
-        Assert.Equal(Slug.Parse("TEST.2"), Slug.Create("test.2"));
+        Assert.Equal(Slug.Parse("TE_ST"), Slug.Create("te_st"));
         Assert.Equal(Slug.Parse("test"), Slug.Create("TEST"));
         Assert.Equal(Slug.Parse(" test"), Slug.Create("   TEsT   "));
         Assert.Equal(Slug.Parse("TesT"), Slug.Parse(" TesT "));
