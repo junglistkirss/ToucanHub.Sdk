@@ -26,7 +26,7 @@ public static partial class NamingConvention
     /// Sans que ces symboles soient consécutifs, ni en début ni en fin
     /// </para>
     /// </summary>
-    public const string SlugPattern = "^(?!.*[._-]{2})(?!^[._-])(?!.*[._-]$)[\\w.-]{1,64}$";
+    public const string SlugPattern = "^(?!.*_{2})(?!_)(?!.+_$)\\w{1,64}$";
 
     [GeneratedRegex(TagPattern, RegexOptions.Singleline | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     public static partial Regex TagRegex();
