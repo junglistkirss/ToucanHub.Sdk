@@ -1,11 +1,15 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 using NJsonSchema;
 using NJsonSchema.Generation;
 using NJsonSchema.Generation.TypeMappers;
+using NSwag.Generation.Processors.Security;
+using NSwag;
 using Toucan.Sdk.Api.Features;
 using Toucan.Sdk.Api.Middlewares;
 using Toucan.Sdk.Contracts;
@@ -16,6 +20,39 @@ namespace Toucan.Sdk.Api.Extensions;
 
 public static class WebApplicationBuilderExtensions
 {
+    public static ApiConfiguration WithJWT(this ApiConfiguration configuration, string name)
+    {
+        return ApiConfiguration.Default with
+        {
+            OpenApiDocumentGenerator = (doc) =>
+            {
+                const string JWT = "JWT";
+
+                doc.Title = name;
+                doc.DocumentName = name;
+                doc.PostProcess = d =>
+                {
+                    d.Info.Title = name;
+                };
+                doc.SchemaSettings.GenerateEnumMappingDescription = true;
+                doc.AddSecurity(JWT, [], new OpenApiSecurityScheme
+                {
+                    BearerFormat = JWT,
+                    Name = HeaderNames.Authorization,
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Scheme = JwtBearerDefaults.AuthenticationScheme,
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    //Description = "JWT Authorization Header using Bearer scheme"
+                });
+                doc.SchemaSettings.UseXmlDocumentation = true;
+                doc.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor(JWT)
+                );
+            },
+
+        };
+    }
+
     public static IMvcCoreBuilder AddToucanAuthorization(this IMvcCoreBuilder builder)
     {
         builder.Services
@@ -26,7 +63,7 @@ public static class WebApplicationBuilderExtensions
         return builder.AddAuthorization();
     }
 
-    public static WebApplicationBuilder ConfigureJsonApi(this WebApplicationBuilder builder, ApiConfiguration? config = null, Action<IMvcCoreBuilder>? mvcCoreConfigure = null)
+    public static WebApplicationBuilder ConfigureJsonApi(this WebApplicationBuilder builder, Action<IMvcCoreBuilder>? mvcCoreConfigure = null)
     {
         builder.Services.AddSingleton(CommonJson.SerializerOptionsInstance);
         builder.Services.ConfigureHttpJsonOptions(options =>
