@@ -5,11 +5,7 @@ on:
     secrets:
       token:
         required: true
-
-permissions:
-  pull-requests: write
-  contents: read
-
+        
 jobs:
   build:
 
@@ -37,7 +33,7 @@ jobs:
         reports: ./coverage/**/coverage.cobertura.xml
         targetdir: ./coveragereport
         reporttypes: Cobertura
-      
+        
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
