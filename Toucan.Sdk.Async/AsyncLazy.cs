@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Toucan.Sdk.Utils;
+namespace Toucan.Sdk.Async;
 
 public class AsyncLazy<T> : Lazy<Task<T>>
 {
