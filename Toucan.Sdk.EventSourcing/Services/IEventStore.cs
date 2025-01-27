@@ -7,7 +7,7 @@ public interface IEventStore<TStreamKey, TEvent> : IEventStoreReader<TStreamKey,
     where TEvent : notnull
 {
     Task<IStorageTransaction> BeginTransactionAsync(Action? commitCallback = null, CancellationToken ct = default);
-    Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, Type type, CancellationToken ct = default);
+    Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, string typeName, CancellationToken ct = default);
 }
 public interface IEventStoreReader<TStreamKey, TEvent>
     where TStreamKey : struct

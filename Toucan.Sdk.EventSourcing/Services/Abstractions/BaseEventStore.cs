@@ -97,7 +97,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, Type type, CancellationToken ct = default)
+    public async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, string streamTypeName, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("open_stream"))
             try
@@ -106,7 +106,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 StreamInfo<TStreamKey> info = await eventLogService.GetStreamInfo(key, ct);
                 if (info.Version == Versioning.Any)
                 {
-                    TStoredStream stream = BuildStream(key, type);
+                    TStoredStream stream = BuildStream(key, streamTypeName);
                     StreamInfo<TStreamKey> last = await eventLogService.CreateStream(stream, ct);
                     return last;
                 }
@@ -118,7 +118,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    protected abstract TStoredStream BuildStream(TStreamKey key, Type type);
+    protected abstract TStoredStream BuildStream(TStreamKey key, string streamTypeName);
 
     public async Task SaveSnapshotAsync(TStreamKey key, Versioning version, TProjection projection, CancellationToken ct = default)
     {
