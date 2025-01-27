@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   build-and-tests:
     uses: ./.github/workflows/build.yml
