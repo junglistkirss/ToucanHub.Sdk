@@ -5,7 +5,7 @@ namespace Toucan.Sdk.Utils;
 
 public static class Hasher
 {
-    public static string Hash(this Guid uid) => uid.ToString().ToSha256();
+    public static string Hash(this Guid uid) => uid.ToString().ToSHA256();
 
     public static string New()
     {
@@ -27,17 +27,12 @@ public static class Hasher
     }
 
 
-    public static string Simple() => Guid.NewGuid().ToString().ToSha256();
+    public static string Simple() => Guid.NewGuid().ToString().ToSHA256();
 
-    public static string ToSha256(this string value) => value.ToHashed(SHA256.HashData);
-    //public static string ToSha256(this byte[] value) => value.ToBytesHashed(SHA256.HashData);
-
-    public static string ToSha512(this string value) => value.ToHashed(SHA512.HashData);
-    //public static string ToSha512(this byte[] value) => value.ToBytesHashed(SHA512.HashData);
-
+    public static string ToSHA1(this string value) => value.ToHashed(SHA1.HashData);
+    public static string ToSHA256(this string value) => value.ToHashed(SHA256.HashData);
+    public static string ToSHA512(this string value) => value.ToHashed(SHA512.HashData);
     public static string ToMD5(this string value) => value.ToHashed(MD5.HashData);
-
-    //public static string ToMD5(this byte[] bytes) => bytes.ToBytesHashed(MD5.HashData);
 
     private delegate byte[] HashProducer(byte[] data);
 

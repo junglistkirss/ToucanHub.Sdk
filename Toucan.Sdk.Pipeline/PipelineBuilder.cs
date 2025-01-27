@@ -48,7 +48,7 @@ public sealed class PipelineBuilder<TContext>
         descriptors.Add(Create<T>(handle));
         return this;
     }
-    
+
     public PipelineBuilder<TContext> Then<T>(Func<T, MiddlewareHandle<TContext>> handle)
         where T : class
     {
@@ -65,7 +65,7 @@ public sealed class PipelineBuilder<TContext>
 
     public PipelineBuilder<TContext> Then(MiddlewareFactory<MiddlewareHandle<TContext>> step)
     {
-        descriptors.Add(FromFactory((s) => (ctx, next) => step(s)(ctx, ()=> next(ctx) )));
+        descriptors.Add(FromFactory((s) => (ctx, next) => step(s)(ctx, () => next(ctx))));
         return this;
     }
     public PipelineBuilder<TContext> Then(MiddlewareHandle<TContext> handle)

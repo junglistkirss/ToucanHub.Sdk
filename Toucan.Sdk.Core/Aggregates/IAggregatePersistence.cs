@@ -2,7 +2,7 @@ using Toucan.Sdk.Shared.Models;
 
 namespace Toucan.Sdk.Core.Aggregates;
 
-public interface IAggregatePersistence<TAggregate, TId> 
+public interface IAggregatePersistence<TAggregate, TId>
     where TAggregate : IIdentified<TId>, IAggregate
     where TId : struct
 {

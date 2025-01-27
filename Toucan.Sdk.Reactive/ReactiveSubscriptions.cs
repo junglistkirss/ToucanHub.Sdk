@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Reactive.Concurrency;
-using System.Reactive.Subjects;
-using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using System.Runtime.InteropServices.JavaScript;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace Toucan.Sdk.Reactive;
 

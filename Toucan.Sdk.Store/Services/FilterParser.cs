@@ -1,6 +1,4 @@
-﻿using Toucan.Sdk.Store.QueryOptions;
-
-namespace Toucan.Sdk.Store.Services;
+﻿namespace Toucan.Sdk.Store.Services;
 
 
 public interface IGlobalFilter<TContext, TEntity>

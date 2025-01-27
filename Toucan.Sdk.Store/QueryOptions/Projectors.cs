@@ -72,7 +72,7 @@ public static class ExpressionFilterProjectorExtensions
         //if (accessor.Body.NodeType != ExpressionType.MemberAccess)
         //    return null;
 
-        ConstantExpression compareValue = Expression.Constant(new DateTimeOffset( filter.Value));
+        ConstantExpression compareValue = Expression.Constant(new DateTimeOffset(filter.Value));
 
         switch (filter.Method)
         {
@@ -196,7 +196,7 @@ public static class ExpressionFilterProjectorExtensions
         }
 
     }
-    
+
     [Obsolete("Must check nullity")]
     public static Expression<Func<T, bool>>? CreatePredicateExpression<T, TNumeric>(this NumericFilter<TNumeric> filter, Expression<Func<T, TNumeric?>> accessor)
         where TNumeric : unmanaged, IComparable, IComparable<TNumeric>, IConvertible, IEquatable<TNumeric>, IFormattable
@@ -335,7 +335,7 @@ public static class ExpressionFilterProjectorExtensions
         }
     }
 
-    public static bool IsValid([NotNullWhen(true)] this  StringFilter? filter)
+    public static bool IsValid([NotNullWhen(true)] this StringFilter? filter)
     {
         return filter is not null
             && (
@@ -412,7 +412,7 @@ public static class ExpressionFilterProjectorExtensions
 
     }
 
-    
+
     public delegate Expression<Func<T, bool>>? ExpressionFilterProjector<TFilter, T>(TFilter filter) where TFilter : class, IFilter<TFilter>;
 
 

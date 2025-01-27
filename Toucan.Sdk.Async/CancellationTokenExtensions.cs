@@ -1,4 +1,4 @@
-namespace Toucan.Sdk.Utils;
+namespace Toucan.Sdk.Async;
 
 public static class CancellationTokenExtensions
 {
@@ -16,7 +16,7 @@ public static class CancellationTokenExtensions
         return final.Token;
     }
 
-    public static CancellationToken Wrap(this CancellationToken cancellationToken, CancellationToken other)
+    public static CancellationToken WrapTimeout(this CancellationToken cancellationToken, CancellationToken other)
     {
         CancellationTokenSource final = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, other);
         return final.Token;

@@ -1,6 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Query;
-
-namespace Toucan.Sdk.Store.Services;
+﻿namespace Toucan.Sdk.Store.Services;
 
 public interface IContextWrapper<TContext>
     where TContext : IReadContextProxy

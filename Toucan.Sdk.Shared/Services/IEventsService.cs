@@ -1,5 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Names;
-using Toucan.Sdk.Contracts.Query;
+﻿using Toucan.Sdk.Contracts.Query;
 using Toucan.Sdk.Contracts.Query.Page;
 using Toucan.Sdk.Contracts.Wrapper;
 using Toucan.Sdk.Shared.Messages;

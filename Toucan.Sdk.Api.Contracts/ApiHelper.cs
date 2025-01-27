@@ -46,7 +46,7 @@ public static class ApiHelper
     public static bool IsSuccess(this ApiStatus status) => status is ApiStatus.Success;
     public static bool IsError(this ApiResponseMessage? message, out string[] messages)
     {
-        if(!message.IsSuccess())
+        if (!message.IsSuccess())
         {
             messages = message?.Messages ?? [];
             return true;

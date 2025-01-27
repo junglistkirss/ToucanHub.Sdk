@@ -101,7 +101,7 @@ public class ApiHelperTests
             Sorting = new SortQueryParamsApi<TestSortEnum>
             {
                 SortBy = TestSortEnum.Name,
-                SortDirection  = SortDirection.Desc,
+                SortDirection = SortDirection.Desc,
             },
         };
         queryApi.PrepareQuery(out Pagination paging, out SortOption<TestSortEnum>[] sorting, out TestFilter? filter);

@@ -1,6 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Wrapper;
-
-namespace Toucan.Sdk.Contracts.Messages;
+﻿namespace Toucan.Sdk.Contracts.Messages;
 
 public abstract record class GetBy<TId, TOut> : QueryMessage<TOut>
     where TId : struct

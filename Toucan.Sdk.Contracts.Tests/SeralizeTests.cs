@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization.Metadata;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Toucan.Sdk.Contracts.JsonData;
 using Toucan.Sdk.Contracts.Messages;
 using Toucan.Sdk.Contracts.Names;
@@ -34,7 +34,7 @@ public class SeralizeTests
 
     public SeralizeTests()
     {
-        CommonJson.ChangeJsonSerializerOptionsConfiguration( (opts) =>
+        CommonJson.ChangeJsonSerializerOptionsConfiguration((opts) =>
         {
             CommonJson.SdkContractsSerializerOptions(opts);
             opts.TypeInfoResolver = opts.TypeInfoResolver!
@@ -44,7 +44,7 @@ public class SeralizeTests
 
     private sealed record TestEvent1(Slug Key) : EventMessage;
     private sealed record TestEvent2(Slug OtherKey) : EventMessage;
-    
+
     [Fact]
     public void BatchSerialisation()
     {

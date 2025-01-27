@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
 using Toucan.Sdk.Contracts.Query;
 using Toucan.Sdk.Contracts.Query.Filters;
 using Toucan.Sdk.Contracts.Query.Page;

@@ -20,8 +20,8 @@ public readonly record struct Metadata
         ArgumentNullException.ThrowIfNull(key, nameof(key));
 
         string? output = key.Trim();
-        if(string.IsNullOrEmpty(output))
-            throw new ArgumentException("Invalid metadata key",nameof(key));
+        if (string.IsNullOrEmpty(output))
+            throw new ArgumentException("Invalid metadata key", nameof(key));
 
         return Empty with
         {

@@ -29,7 +29,7 @@ public static partial class ToucanHttpClient
 
     public static string WithSegments(this string src, Dictionary<string, string> vals)
         => varPattern.Replace(src, m => vals.TryGetValue(m.Groups[1].Value, out string? v) ? v : m.Value);
-    public static string WithQueryString(this string basePath, Action<Dictionary<string,object?>> action)
+    public static string WithQueryString(this string basePath, Action<Dictionary<string, object?>> action)
     {
         var args = new Dictionary<string, object?>();
         action(args);
@@ -41,12 +41,12 @@ public static partial class ToucanHttpClient
         return $"{basePath}?{queryString}";
     }
 
-    public static async Task<ApiResponseMessage?> AsApiMessage(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseMessage>(CommonJson.SerializerOptionsInstance, cancellationToken) ;
+    public static async Task<ApiResponseMessage?> AsApiMessage(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseMessage>(CommonJson.SerializerOptionsInstance, cancellationToken);
 
-    public static async Task<ApiResponseModel<T>?> AsApiModel<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseModel<T>>(CommonJson.SerializerOptionsInstance, cancellationToken) ;
+    public static async Task<ApiResponseModel<T>?> AsApiModel<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseModel<T>>(CommonJson.SerializerOptionsInstance, cancellationToken);
     public static async Task<ApiResponseModel<ModelConvention<T>>?> AsApiConventionModel<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.AsApiModel<ModelConvention<T>>(cancellationToken);
 
-    public static async Task<ApiResponseModelCollection<T>?> AsApiCollection<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseModelCollection<T>>(CommonJson.SerializerOptionsInstance,cancellationToken);
+    public static async Task<ApiResponseModelCollection<T>?> AsApiCollection<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.Content.ReadFromJsonAsync<ApiResponseModelCollection<T>>(CommonJson.SerializerOptionsInstance, cancellationToken);
     public static async Task<ApiResponseModelCollection<ModelConvention<T>>?> AsApiConventionCollection<T>(this HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken = default) => await httpResponseMessage.AsApiCollection<ModelConvention<T>>(cancellationToken);
-    
+
 }
