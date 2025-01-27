@@ -1,6 +1,6 @@
 ﻿namespace Toucan.Sdk.Shared.Models;
 
-public sealed record class StreamEnriched(DomainId StreamId, string StreamName, long PreviousVersion, long CurrerntVersion, string Etag, Commit[] Events) ;
+public sealed record class StreamEnriched(DomainId StreamId, string StreamName, long PreviousVersion, long CurrerntVersion, string Etag, Commit[] Events);
 
 public record class EventInfo
 {

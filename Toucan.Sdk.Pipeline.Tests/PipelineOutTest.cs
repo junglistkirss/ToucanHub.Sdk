@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NSubstitute.ClearExtensions;
-using Toucan.Sdk.Pipeline;
 
 namespace Toucan.Sdk.Pipeline.Tests;
 

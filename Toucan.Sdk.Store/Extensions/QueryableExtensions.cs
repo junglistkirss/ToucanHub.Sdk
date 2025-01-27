@@ -89,7 +89,7 @@ public static class QueryableExtensions
     public static async Task<PartialCollection<TProjected>> ResolveCollectionAsync<T, TProjected>(
         this IQueryable<T> query,
         Pagination pagination,
-        Expression<Func<T, TProjected>> projection ,
+        Expression<Func<T, TProjected>> projection,
         Expression<Func<T, bool>>? filter = null,
         Expression<Func<TProjected, bool>>? filterProjected = null,
         IEnumerable<SortMarshaller<T>>? sort = null,

@@ -53,7 +53,7 @@ public sealed class AsyncPipelineBuilder<TContext>
     }
     public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<AsyncMiddlewareHandle<TContext>> step)
     {
-        descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx,next) => step(s)(ctx, () => next(ctx)))));
+        descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => step(s)(ctx, () => next(ctx)))));
         return this;
     }
     public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<AsyncRichMiddlewareHandle<TContext>> step)
@@ -77,18 +77,18 @@ public sealed class AsyncPipelineBuilder<TContext>
        where T : class
     {
         descriptors.Add(Create<T>(
-            (src) => 
+            (src) =>
                 new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(src)(ctx, () => next(ctx)))
             ));
         return this;
     }
 
-    
+
     public AsyncPipelineBuilder<TContext> Then<T>(Func<T, AsyncMiddlewareActionHandle<TContext>> handle)
        where T : class
     {
         descriptors.Add(Create<T>(
-            (src) => 
+            (src) =>
                 new AsyncRichMiddlewareHandle<TContext>((ctx, _) => handle(src)(ctx))
             ));
         return this;

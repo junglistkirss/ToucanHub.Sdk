@@ -1,21 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  
+
   <PropertyGroup>
-    <PackageId>Toucan.Sdk.Utils</PackageId>
-    <Version>0.0.2</Version>
+    <PackageId>Toucan.Async.Utils</PackageId>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
-    <PackageDescription>Sdk Utils</PackageDescription>
+    <PackageDescription>Sdk Contracts</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <None Include="readme.md">
       <Pack>True</Pack>

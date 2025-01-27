@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Toucan.Sdk.Pipeline;
 
-public interface IPipelineContext {}
+public interface IPipelineContext { }
 public abstract record class PipelineContext : IPipelineContext
 {
     private ImmutableDictionary<string, object> _store = ImmutableDictionary<string, object>.Empty;

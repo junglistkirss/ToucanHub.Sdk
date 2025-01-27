@@ -11,8 +11,8 @@ public class HasherUnitTest
     [InlineData("abc", " abc")]
     public void ToSha256(string value1, string value2)
     {
-        string res1 = value1.ToSha256();
-        string res2 = value2.ToSha256();
+        string res1 = value1.ToSHA256();
+        string res2 = value2.ToSHA256();
         Assert.NotEqual(res1, res2);
     }
 
@@ -24,8 +24,8 @@ public class HasherUnitTest
     [InlineData("abc", " abc")]
     public void ToSha512(string value1, string value2)
     {
-        string res1 = value1.ToSha512();
-        string res2 = value2.ToSha512();
+        string res1 = value1.ToSHA512();
+        string res2 = value2.ToSHA512();
         Assert.NotEqual(res1, res2);
     }
     [Theory]

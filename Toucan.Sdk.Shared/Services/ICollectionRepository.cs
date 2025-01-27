@@ -6,7 +6,7 @@ namespace Toucan.Sdk.Shared.Services;
 
 public interface ICollectionRepository<T, TId>
     where TId : struct
-    where T : class,  IEntity<TId>
+    where T : class, IEntity<TId>
 {
     Task<Result> Insert(T obj, CancellationToken cancellationToken);
     Task<Result> Update(T obj, CancellationToken cancellationToken);

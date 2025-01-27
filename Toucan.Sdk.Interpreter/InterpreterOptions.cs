@@ -4,7 +4,7 @@ namespace Toucan.Sdk.Interpreter;
 
 public sealed record class InterpreterOptions
 {
-    public static readonly InterpreterOptions Default = new ();
+    public static readonly InterpreterOptions Default = new();
 
     public bool StrictMode { get; init; }
     public bool DebugMode { get; init; }

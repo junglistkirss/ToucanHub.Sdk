@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using NJsonSchema;
 using NJsonSchema.Generation;
 using NJsonSchema.Generation.TypeMappers;
-using System.Reflection.Metadata;
 using Toucan.Sdk.Api.Features;
 using Toucan.Sdk.Api.Middlewares;
 using Toucan.Sdk.Contracts;

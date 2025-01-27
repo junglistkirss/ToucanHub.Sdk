@@ -13,11 +13,11 @@ public record class SortQueryParamsApi<TSort>
     where TSort : notnull
 {
     public static readonly SortQueryParamsApi<TSort> Empty = new SortQueryParamsApi<TSort>();
-    public TSort? SortBy { get; init; } 
+    public TSort? SortBy { get; init; }
     public SortDirection? SortDirection { get; init; }
 }
 
-public record class SimpleQueryApi<TSort, TFilter> 
+public record class SimpleQueryApi<TSort, TFilter>
     where TSort : notnull
 {
     public PaginateQueryParamsApi? Pagination { get; init; } = PaginateQueryParamsApi.Empty;

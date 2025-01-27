@@ -1,5 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Query.Filters;
-using Toucan.Sdk.Contracts.Query.Page;
+﻿using Toucan.Sdk.Contracts.Query.Page;
 
 namespace Toucan.Sdk.Contracts.Query;
 
@@ -7,7 +6,7 @@ public static class QueryHelper
 {
     public static CollectionQuery<TFilter, TSearch, TSortEnum> Collection<TFilter, TSearch, TSortEnum>()
         where TFilter : BaseFilterNode<TSearch>
-        where TSortEnum : struct 
+        where TSortEnum : struct
         => new();
 
     public static CollectionPage<TSortEnum> Page<TSortEnum>(this Pagination pagination)
@@ -27,13 +26,13 @@ public static class QueryHelper
 
     public static CollectionQuery<TFilter, TSearch, TSortEnum> Paginate<TFilter, TSearch, TSortEnum>(this CollectionQuery<TFilter, TSearch, TSortEnum> collection, Pagination pagination)
         where TFilter : BaseFilterNode<TSearch>
-       where TSortEnum : struct 
+       where TSortEnum : struct
         => collection with { Pagination = pagination };
 
 
     public static CollectionQuery<TFilter, TSearch, TSortEnum> Sort<TFilter, TSearch, TSortEnum>(this CollectionQuery<TFilter, TSearch, TSortEnum> collection, params SortOption<TSortEnum>[] sortOptions)
         where TFilter : BaseFilterNode<TSearch>
-        where TSortEnum : struct 
+        where TSortEnum : struct
         => collection with { SortOptions = sortOptions };
 
     //public static TQuery Where<TQuery, TFilter>(this TQuery collection, TFilter filter)
@@ -49,7 +48,7 @@ public static class QueryHelper
     {
         return new()
         {
-            Filter =  filter
+            Filter = filter
         };
     }
 }

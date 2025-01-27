@@ -109,7 +109,7 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
     public static implicit operator string(DomainId input) => input.ToString();
 
     public static implicit operator DomainId(Guid input) => FromGuid(input);
-    
+
     public static DomainId New() => new(Guid.NewGuid().ToString("N"));
 
     [Pure]

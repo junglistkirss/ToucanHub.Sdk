@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using Toucan.Sdk.Contracts.Messages;
 using Toucan.Sdk.Contracts.Names;
-using Toucan.Sdk.Contracts.Registry;
 
 namespace Toucan.Sdk.Contracts.Converters;
 

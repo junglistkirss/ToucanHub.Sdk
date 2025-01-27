@@ -1,7 +1,5 @@
 ﻿using Toucan.Sdk.Contracts.Query;
-using Toucan.Sdk.Contracts.Query.Page;
 using Toucan.Sdk.Store.Extensions;
-using Toucan.Sdk.Store.QueryOptions;
 
 namespace Toucan.Sdk.Store.Services;
 

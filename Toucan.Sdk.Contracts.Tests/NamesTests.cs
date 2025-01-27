@@ -48,8 +48,8 @@ public class NamesTests
     public void ColorEquals()
     {
         Assert.Equal(Color.Parse("#FFF"), Color.Create("#fff"));
-        Assert.Equal("#FFF", Color.Parse("#FFF").HexCode );
-        Assert.Equal("#fff", Color.Parse("#fff").HexCode );
+        Assert.Equal("#FFF", Color.Parse("#FFF").HexCode);
+        Assert.Equal("#fff", Color.Parse("#fff").HexCode);
 
         Assert.Equal(Color.Parse("#FFF000"), Color.Create("#fff000"));
         Assert.Equal("#FFF000", Color.Parse("#FFF000").HexCode);
