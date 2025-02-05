@@ -7,11 +7,16 @@ using System.Reactive.Subjects;
 
 namespace Toucan.Sdk.Reactive;
 
-internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger) : IHostedService, ISubscriptionDispatcher, ISubscriptionManager, IDisposable
+public interface ISubscrptionsSchedulerProvider
+{
+    IScheduler Scheduler { get; }
+}
+
+internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISubscrptionsSchedulerProvider? subscrptionsSchedulerProvider = null) : IHostedService, ISubscriptionDispatcher, ISubscriptionManager, IDisposable
 {
     private readonly Subject<object> subject = new();
-    private readonly EventLoopScheduler scheduler = new();
-    private readonly List<IDisposable> subscriptions = [];
+    private readonly IScheduler scheduler = subscrptionsSchedulerProvider?.Scheduler ?? TaskPoolScheduler.Default;
+    private readonly CompositeDisposable subscriptions = new();
     private readonly object _lock = new();
     private TaskCompletionSource<bool> isStarted = new();
     private int isStarting;
@@ -181,6 +186,5 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger) : IH
         }
 
         subject.OnCompleted();
-        scheduler.Dispose();
     }
 }
