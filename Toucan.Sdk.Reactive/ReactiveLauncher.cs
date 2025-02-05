@@ -36,7 +36,7 @@ public interface IReactiveLauncher
 {
     Task<bool> WaitForStart(CancellationToken cancellationToken = default);
 
-    Guid Initialize<T>();
+    Guid Initialize();
     void Kill(Guid serviceId);
     IObservable<ChildServiceInfo> Observe();
 }
@@ -300,12 +300,12 @@ internal class SharedReactive(ILogger<SharedReactive> logger, IServiceProvider p
         subject.OnCompleted();
     }
 
-    public Guid Initialize<T>()
+    public Guid Initialize()
     {
-        if (isStarted.Task.IsCompletedSuccessfully)
+        if (!isStarted.Task.IsCompletedSuccessfully)
         {
-            logger.LogWarning("Service is not running");
-            return Guid.Empty;
+            logger.LogError("Service is not running");
+            throw new InvalidOperationException("Service is not running");
         }
 
         Guid uid = Guid.NewGuid();
