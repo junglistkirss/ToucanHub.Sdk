@@ -73,7 +73,6 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         IDisposable subscription = subject
             .OfType<T>()
             .ObserveOn(scheduler)
-            .SubscribeOn(scheduler)
             .Subscribe(
                 @event =>
                 {
@@ -113,7 +112,6 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         IDisposable subscription = subject
             .OfType<T>()
             .ObserveOn(scheduler)
-            .SubscribeOn(scheduler)
             .Subscribe(
                 async @event =>
                 {
@@ -153,7 +151,6 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         IDisposable subscription = subject
             .OfType<T>()
             .ObserveOn(scheduler)
-            .SubscribeOn(scheduler)
             .Subscribe(
                 async @event =>
                 {
@@ -194,7 +191,7 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
     {
         IObservable<T> observable = Observe<T>();
         IObservable<TTransform> transformed = transform(observable)
-            .SubscribeOn(scheduler);
+            .ObserveOn(scheduler);
         IDisposable managedSubscription = CreateManagedSubscription(transformed.Subscribe());
         return managedSubscription;
     }
