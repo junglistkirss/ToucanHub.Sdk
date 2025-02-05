@@ -96,7 +96,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
 
         IDisposable subscription = subject
             .OfType<T>()
-            .SubscribeOn(scheduler)
+            .ObserveOn(scheduler)
             .Subscribe(
                 @event =>
                 {
@@ -152,7 +152,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
 
         IDisposable subscription = subject
             .OfType<T>()
-            .SubscribeOn(scheduler)
+            .ObserveOn(scheduler)
             .Subscribe(
                 async @event =>
                 {
@@ -190,7 +190,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
 
         IDisposable subscription = subject
             .OfType<T>()
-            .SubscribeOn(scheduler)
+            .ObserveOn(scheduler)
             .Subscribe(
                 async @event =>
                 {
