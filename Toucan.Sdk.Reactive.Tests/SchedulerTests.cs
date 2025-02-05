@@ -18,13 +18,18 @@ public class SchedulerTests
         services.TryAddScoped(s => Substitute.For<ILogger>());
         services.AddReactiveHostedService();
         var serviceProvider = services.BuildServiceProvider();
-        IHostedService hosted = serviceProvider.GetRequiredService<IHostedService>();
-        await hosted.StartAsync(CancellationToken.None);
-        Assert.NotNull(hosted);
+        IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
+        foreach (var item in hosteds)
+        {
+            await item.StartAsync(CancellationToken.None);
+        }
         ISubscriptionManager manager = serviceProvider.GetRequiredService<ISubscriptionManager>();
         bool started = await manager.WaitForStart(CancellationToken.None);
         Assert.True(started);
-        await hosted.StopAsync(CancellationToken.None);
+        foreach (var item in hosteds)
+        {
+            await item.StopAsync(CancellationToken.None);
+        }
     }
 
     private class TestSchedulerProvider : ISubscrptionsSchedulerProvider
@@ -45,20 +50,25 @@ public class SchedulerTests
         services.TryAddSingleton<ISubscrptionsSchedulerProvider>(new TestSchedulerProvider());
         services.AddReactiveHostedService();
         var serviceProvider = services.BuildServiceProvider();
-        IHostedService hosted = serviceProvider.GetRequiredService<IHostedService>();
-        await hosted.StartAsync(CancellationToken.None);
-        Assert.NotNull(hosted);
+        IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
+        foreach (var item in hosteds)
+        {
+            await item.StartAsync(CancellationToken.None);
+        }
         ISubscriptionManager manager = serviceProvider.GetRequiredService<ISubscriptionManager>();
         bool started = await manager.WaitForStart(CancellationToken.None);
         Assert.True(started);
-        await hosted.StopAsync(CancellationToken.None);
+        foreach (var item in hosteds)
+        {
+            await item.StopAsync(CancellationToken.None);
+        }
     }
 
 
     [Fact]
     public async Task WithMockSchedulerProvider()
     {
-        
+
 
         IServiceCollection services = new ServiceCollection();
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
@@ -67,12 +77,17 @@ public class SchedulerTests
         services.TryAddSingleton(s => Substitute.For<ISubscrptionsSchedulerProvider>());
         services.AddReactiveHostedService();
         var serviceProvider = services.BuildServiceProvider();
-        IHostedService hosted = serviceProvider.GetRequiredService<IHostedService>();
-        await hosted.StartAsync(CancellationToken.None);
-        Assert.NotNull(hosted);
+        IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
+        foreach (var item in hosteds)
+        {
+            await item.StartAsync(CancellationToken.None);
+        }
         ISubscriptionManager manager = serviceProvider.GetRequiredService<ISubscriptionManager>();
         bool started = await manager.WaitForStart(CancellationToken.None);
         Assert.True(started);
-        await hosted.StopAsync(CancellationToken.None);
+        foreach (var item in hosteds)
+        {
+            await item.StopAsync(CancellationToken.None);
+        }
     }
 }
