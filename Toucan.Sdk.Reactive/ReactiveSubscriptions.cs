@@ -4,12 +4,28 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.Serialization;
 
 namespace Toucan.Sdk.Reactive;
 
 public interface ISubscrptionsSchedulerProvider
 {
     IScheduler Scheduler { get; }
+}
+
+public sealed class ReactiveSubscriptionException : Exception
+{
+    public ReactiveSubscriptionException()
+    {
+    }
+
+    public ReactiveSubscriptionException(string? message) : base(message)
+    {
+    }
+
+    public ReactiveSubscriptionException(string? message, Exception? innerException) : base(message, innerException)
+    {
+    }
 }
 
 internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISubscrptionsSchedulerProvider? subscrptionsSchedulerProvider = null) : IHostedService, ISubscriptionDispatcher, ISubscriptionManager, IDisposable
@@ -24,6 +40,7 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
     {
         return isStarted.Task.WaitAsync(cancellationToken);
     }
+
     public void Publish<T>(T @event)
     {
         ArgumentNullException.ThrowIfNull(@event);
@@ -37,13 +54,26 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         }
     }
 
-    public IDisposable Subscribe<T>(Action<T> handler)
+    public void Complete()
+    {
+        if (isStarted.Task.IsCompletedSuccessfully)
+        {
+            subject.OnCompleted();
+        }
+        else
+        {
+            logger.LogWarning("Attempted to complete when service is not started");
+        }
+    }
+
+    public IDisposable Subscribe<T>(Action<T> handler, Action<Exception>? error = null, Action? complete = null)
     {
         ArgumentNullException.ThrowIfNull(handler);
 
         IDisposable subscription = subject
             .OfType<T>()
             .ObserveOn(scheduler)
+            .SubscribeOn(scheduler)
             .Subscribe(
                 @event =>
                 {
@@ -54,9 +84,21 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
+                        throw new ReactiveSubscriptionException("Error handling event", ex);
                     }
                 },
-                ex => logger.LogError(ex, "Error in event stream for {EventType}", typeof(T))
+                ex =>
+                {
+                    if (error is not null)
+                        error(ex);
+                    logger.LogError(ex, "Error in event stream for {EventType}", typeof(T));
+                },
+                () =>
+                {
+                    if (complete is not null)
+                        complete();
+                    logger.LogInformation("Completed in event stream for {EventType}", typeof(T));
+                }
             );
 
         // Wrap subscription to ensure proper cleanup
@@ -64,13 +106,14 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         return managedSubscription;
     }
 
-    public IDisposable Subscribe<T>(Func<T, ValueTask> handler)
+    public IDisposable Subscribe<T>(Func<T, ValueTask> handler, Func<Exception, ValueTask>? error = null, Func<ValueTask>? complete = null)
     {
         ArgumentNullException.ThrowIfNull(handler);
 
         IDisposable subscription = subject
             .OfType<T>()
             .ObserveOn(scheduler)
+            .SubscribeOn(scheduler)
             .Subscribe(
                 async @event =>
                 {
@@ -81,9 +124,61 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
+                        throw new ReactiveSubscriptionException("Error handling event", ex);
                     }
                 },
-                ex => logger.LogError(ex, "Error in event stream for {EventType}", typeof(T))
+                async ex =>
+                {
+                    if (error is not null)
+                        await error(ex);
+                    logger.LogError(ex, "Error in event stream for {EventType}", typeof(T));
+                },
+                async () =>
+                {
+                    if (complete is not null)
+                        await complete();
+                    logger.LogInformation("Completed in event stream for {EventType}", typeof(T));
+                }
+            );
+        // Wrap subscription to ensure proper cleanup
+        IDisposable managedSubscription = CreateManagedSubscription(subscription);
+        return managedSubscription;
+    }
+
+
+    public IDisposable Subscribe<T>(Func<T, Task> handler, Func<Exception, Task>? error = null, Func<Task>? complete = null)
+    {
+        ArgumentNullException.ThrowIfNull(handler);
+
+        IDisposable subscription = subject
+            .OfType<T>()
+            .ObserveOn(scheduler)
+            .SubscribeOn(scheduler)
+            .Subscribe(
+                async @event =>
+                {
+                    try
+                    {
+                        await handler(@event);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
+                        throw new ReactiveSubscriptionException("Error handling event", ex);
+                    }
+                },
+                async ex =>
+                {
+                    if (error is not null)
+                        await error(ex);
+                    logger.LogError(ex, "Error in event stream for {EventType}", typeof(T));
+                },
+                async () =>
+                {
+                    if (complete is not null)
+                        await complete();
+                    logger.LogInformation("Completed in event stream for {EventType}", typeof(T));
+                }
             );
         // Wrap subscription to ensure proper cleanup
         IDisposable managedSubscription = CreateManagedSubscription(subscription);
@@ -92,14 +187,14 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
 
     public IObservable<T> Observe<T>()
     {
-        return subject.OfType<T>();
+        return subject.OfType<T>().ObserveOn(scheduler);
     }
 
     public IDisposable Subscribe<T, TTransform>(Func<IObservable<T>, IObservable<TTransform>> transform)
     {
         IObservable<T> observable = Observe<T>();
         IObservable<TTransform> transformed = transform(observable)
-            .ObserveOn(scheduler);
+            .SubscribeOn(scheduler);
         IDisposable managedSubscription = CreateManagedSubscription(transformed.Subscribe());
         return managedSubscription;
     }

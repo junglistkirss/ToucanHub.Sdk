@@ -3,5 +3,7 @@
 public interface ISubscriptionDispatcher
 {
     void Publish<T>(T value);
+    void Complete();
 }
+
 
