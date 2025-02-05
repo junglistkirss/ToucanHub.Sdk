@@ -10,6 +10,14 @@ public static class ReactiveModule
         services.AddSingleton<ISubscriptionDispatcher>(s => s.GetRequiredService<ReactiveSubscriptions>());
         services.AddHostedService(sp => sp.GetRequiredService<ReactiveSubscriptions>());
 
+
+        services.AddSingleton<SharedReactive>();
+        services.AddTransient<ManagedReactive>();
+        services.AddSingleton<IReactiveLauncher>(s => s.GetRequiredService<SharedReactive>());
+        services.AddSingleton<IReactiveManagedDispatcher>(s => s.GetRequiredService<SharedReactive>());
+        services.AddSingleton<IReactiveManagedSubscriber>(s => s.GetRequiredService<SharedReactive>());
+        services.AddHostedService(sp => sp.GetRequiredService<SharedReactive>());
+
         return services;
     }
 }
