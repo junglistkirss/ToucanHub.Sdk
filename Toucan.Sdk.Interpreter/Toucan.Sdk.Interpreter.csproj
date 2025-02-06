@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Interpreter</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Interpreter</PackageDescription>
@@ -25,7 +25,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="Jint" Version="4.1.0" />
+    <PackageReference Include="Jint" Version="4.2.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
