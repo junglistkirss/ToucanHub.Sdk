@@ -44,4 +44,7 @@ public abstract class ReadContextProxy<TContext> : IReadContextProxy
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
+
+    public Task<IContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        => Context.BeginTransactionAsync(cancellationToken);
 }
