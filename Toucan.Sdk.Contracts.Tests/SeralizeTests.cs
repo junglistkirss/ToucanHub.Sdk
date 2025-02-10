@@ -45,6 +45,13 @@ public class SeralizeTests
     private sealed record TestEvent1(Slug Key) : EventMessage;
     private sealed record TestEvent2(Slug OtherKey) : EventMessage;
 
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$my-type")]
+    [JsonDerivedType(typeof(ImplementationEvent1), "implem1")]
+    [JsonDerivedType(typeof(ImplementationEvent2), "implem2")]
+    private abstract record AbstractEvent() : EventMessage;
+    private sealed record ImplementationEvent1() : AbstractEvent;
+    private sealed record ImplementationEvent2() : AbstractEvent;
+
     [Fact]
     public void BatchSerialisation()
     {
@@ -60,7 +67,21 @@ public class SeralizeTests
         Assert.True(dat.SequenceEqual(deserialized));
     }
 
+    [Fact]
+    public void Abstract__InlineCompare()
+    {
+        string inline = CommonJson.Stringify<AbstractEvent>(new ImplementationEvent1());
+        AbstractEvent deserialized = CommonJson.FastRead<AbstractEvent>(inline);
+        Assert.True(deserialized is ImplementationEvent1);
+    }
 
+    [Fact]
+    public void Abstract__ByteCompare()
+    {
+        byte[] bytes = CommonJson.FastWrite<AbstractEvent>(new ImplementationEvent1());
+        AbstractEvent deserialized = CommonJson.FastRead<AbstractEvent>(bytes);
+        Assert.True(deserialized is ImplementationEvent1);
+    }
 
     [Fact]
     public void ObjectSerialization__InlineCompare()

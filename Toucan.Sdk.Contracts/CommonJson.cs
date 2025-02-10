@@ -12,7 +12,7 @@ public static class CommonJson
     public static T FastRead<T>(string inline) => FastRead<T>(inline, typeof(T));
     public static T FastRead<T>(string inline, Type type) => FastRead<T>(Encoding.UTF8.GetBytes(inline), type);
 
-    public static string Stringify<T>(T message) => Stringify(message, message?.GetType() ?? typeof(T));
+    public static string Stringify<T>(T message) => Stringify(message, typeof(T));
     public static string Stringify(object? message, Type type)
     {
         byte[] dat = FastWrite(message, type);
@@ -38,13 +38,13 @@ public static class CommonJson
         object? json = JsonSerializer.Deserialize(ref reader, type, _serializerOptionsInstance);
         return (T)json!;
     }
-    public static byte[] FastWrite<T>(T message) => FastWrite(message, message?.GetType() ?? typeof(T));
+    public static byte[] FastWrite<T>(T message) => FastWrite(message, typeof(T));
     public static byte[] FastWrite(object? message, Type type)
     {
         if (message == null)
             return [];
 
-        if (!type.IsAssignableTo(message.GetType()))
+        if (!type.IsAssignableFrom(message.GetType()))
             throw new InvalidCastException("Unable to read data, types are incompatibles");
 
 
