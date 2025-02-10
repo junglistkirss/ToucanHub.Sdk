@@ -51,6 +51,7 @@ public class SeralizeTests
     private abstract record AbstractEvent() : EventMessage;
     private sealed record ImplementationEvent1() : AbstractEvent;
     private sealed record ImplementationEvent2() : AbstractEvent;
+    private sealed record RawEvent(byte[] Values) : AbstractEvent;
 
     [Fact]
     public void BatchSerialisation()
@@ -68,12 +69,22 @@ public class SeralizeTests
     }
 
     [Fact]
+    public void Binary__ImplicitString()
+    {
+        string inline = CommonJson.Stringify(new RawEvent([0xCC]));
+        RawEvent deserialized = CommonJson.FastRead<RawEvent>(inline);
+        Assert.Single(deserialized.Values);
+        Assert.Equal<byte>(0xCC, deserialized.Values[0]);
+    }
+
+    [Fact]
     public void Abstract__InlineCompare()
     {
         string inline = CommonJson.Stringify<AbstractEvent>(new ImplementationEvent1());
         AbstractEvent deserialized = CommonJson.FastRead<AbstractEvent>(inline);
         Assert.True(deserialized is ImplementationEvent1);
     }
+
 
     [Fact]
     public void Abstract__ByteCompare()

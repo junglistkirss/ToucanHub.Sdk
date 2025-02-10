@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using Toucan.Sdk.Contracts.Extensions;
 using Toucan.Sdk.Contracts.Names;
@@ -263,6 +264,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             int typed => (double)typed,
             long typed => (double)typed,
             string typed => typed,
+            byte[] typed => Encoding.UTF8.GetString(typed),
 
             JsonDataArray typed => typed,
             JsonDataObject typed => typed,
