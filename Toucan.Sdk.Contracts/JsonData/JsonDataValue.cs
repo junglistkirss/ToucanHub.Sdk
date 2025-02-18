@@ -223,23 +223,23 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             case JsonValueKind.Null:
                 return Null;
             case JsonValueKind.Object:
-                JsonDataObject obj = [];
+                Dictionary<string, JsonDataValue> values = [];
 
                 foreach (JsonProperty property in element.EnumerateObject())
                 {
-                    obj.Add(property.Name, Parse(property.Value));
+                    values.Add(property.Name, Parse(property.Value));
                 }
 
-                return new(obj);
+                return new JsonDataObject(values);
             case JsonValueKind.Array:
-                JsonDataArray arr = [];
+                List<JsonDataValue> arr = [];
 
                 foreach (JsonElement item in element.EnumerateArray())
                 {
                     arr.Add(Parse(item));
                 }
 
-                return new(arr);
+                return new JsonDataArray(arr);
             default:
                 throw new NotSupportedException();
         }
@@ -282,12 +282,12 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     }
     public static JsonDataValue Object() => new JsonDataObject();
     public static JsonDataValue Array() => new JsonDataArray();
-    public static JsonDataValue Array<T>(IEnumerable<T> values) => new(new JsonDataArray(values?.OfType<object?>().Select(Create)));
+    public static JsonDataValue Array<T>(IEnumerable<T> values) => new JsonDataArray(values?.OfType<object?>().Select(Create));
 
     //public static Raw Array<T>(params T?[] values) => CreateArray(new RawArray(values?.OfType<object?>().Select(Create)));
     public static JsonDataValue Object<T>(IReadOnlyDictionary<string, T>? values)
     {
-        JsonDataObject source = new(values?.Count ?? 0);
+        Dictionary<string, JsonDataValue> source = new(values?.Count ?? 0);
 
         if (values != null)
         {
@@ -297,7 +297,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             }
         }
 
-        return new(source);
+        return new JsonDataObject(source);
     }
     public string ToJsonFragment()
     {

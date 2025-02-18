@@ -3,25 +3,25 @@ using System.Globalization;
 using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.JsonData;
-public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IList<JsonDataValue>, ITarget<object?[]>
+public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IReadOnlyList<JsonDataValue>, ITarget<object?[]>
 {
-    private readonly List<JsonDataValue> _values;
+    private readonly JsonDataValue[] _values;
 
-    public int Count => _values.Count;
+    public int Count => _values.Length;
 
     public bool IsReadOnly => false;
 
-    public JsonDataValue this[int index] { get => _values[index]; set => _values[index] = value; }
+    public JsonDataValue this[int index] { get => _values[index]; }
 
     public JsonDataArray()
     {
         _values = [];
     }
 
-    public JsonDataArray(int capacity)
-    {
-        _values = new(capacity);
-    }
+    //public JsonDataArray(int capacity)
+    //{
+    //    _values = new(capacity);
+    //}
 
     //public RawArray(RawArray source) 
 
@@ -33,35 +33,34 @@ public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IList<Json
     public JsonDataArray(IEnumerable<JsonDataValue>? source) : this()
     {
         if (source != null)
-            foreach (JsonDataValue item in source)
-                Add(item);
+            _values = [.. source];
     }
 
 
     //public override bool Equals(object? obj) => Equals(obj as RawArray);
 
     //public bool Equals(RawArray? array) => ReferenceEquals(this, array) || EqualsList(ToArray(), array?.ToArray() ?? []);
-    private static bool EqualsList<T>(T[] list, T[] other) => EqualsList(list, other, EqualityComparer<T>.Default);
+    //private static bool EqualsList<T>(T[] list, T[] other) => EqualsList(list, other, EqualityComparer<T>.Default);
 
-    private static bool EqualsList<T>(T[] list, T[] other, EqualityComparer<T> comparer)
-    {
-        if (other == null)
-            return false;
+    //private static bool EqualsList<T>(T[] list, T[] other, EqualityComparer<T> comparer)
+    //{
+    //    if (other == null)
+    //        return false;
 
-        if (ReferenceEquals(list, other))
-            return true;
+    //    if (ReferenceEquals(list, other))
+    //        return true;
 
-        if (list.Length != other.Length)
-            return false;
+    //    if (list.Length != other.Length)
+    //        return false;
 
-        for (int i = 0; i < list.Length; i++)
-        {
-            if (!comparer.Equals(list[i], other[i]))
-                return false;
-        }
+    //    for (int i = 0; i < list.Length; i++)
+    //    {
+    //        if (!comparer.Equals(list[i], other[i]))
+    //            return false;
+    //    }
 
-        return true;
-    }
+    //    return true;
+    //}
     public override int GetHashCode() => SequentialHashCode(this);
     private static int SequentialHashCode<T>(IEnumerable<T> collection) => SequentialHashCode(collection, EqualityComparer<T>.Default);
 
@@ -96,31 +95,6 @@ public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IList<Json
         return false;
     }
 
-    public int IndexOf(JsonDataValue item)
-    {
-        return _values.IndexOf(item);
-    }
-
-    public void Insert(int index, JsonDataValue item)
-    {
-        _values.Insert(index, item);
-    }
-
-    public void RemoveAt(int index)
-    {
-        _values.RemoveAt(index);
-    }
-
-    public void Add(JsonDataValue item)
-    {
-        _values.Add(item);
-    }
-
-    public void Clear()
-    {
-        _values.Clear();
-    }
-
     public bool Contains(JsonDataValue item)
     {
         return _values.Contains(item);
@@ -131,14 +105,9 @@ public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IList<Json
         _values.CopyTo(array, arrayIndex);
     }
 
-    public bool Remove(JsonDataValue item)
-    {
-        return _values.Remove(item);
-    }
-
     public IEnumerator<JsonDataValue> GetEnumerator()
     {
-        return _values.GetEnumerator();
+        return _values.AsEnumerable().GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

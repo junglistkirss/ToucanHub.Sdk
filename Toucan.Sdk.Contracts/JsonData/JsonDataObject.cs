@@ -6,7 +6,7 @@ namespace Toucan.Sdk.Contracts.JsonData;
 
 public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>, IEquatable<JsonDataObject>, ITarget<IReadOnlyDictionary<string, object?>>
 {
-    public static readonly JsonDataObject Dummy = new() { { "dummy", true } };
+    //public static readonly JsonDataObject Dummy = new() { { "dummy", true } };
 
 
     private readonly IDictionary<string, JsonDataValue> _values;
@@ -23,7 +23,7 @@ public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonData
 
     //public override RawValueType Type => RawValueType.Object;
 
-    public JsonDataValue this[string key] { get => _values[key]; set => _values[key] = value; }
+    public JsonDataValue this[string key] { get => _values[key]; }
 
     public JsonDataObject()
     {
@@ -76,17 +76,17 @@ public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonData
 
     }
 
-    public JsonDataObject Put(string key, JsonDataValue value)
-    {
-        this[key] = value;
+    //public JsonDataObject Put(string key, JsonDataValue value)
+    //{
+    //    this[key] = value;
 
-        return this;
-    }
+    //    return this;
+    //}
 
-    public void Add(string key, JsonDataValue value)
-    {
-        _values.Add(key, value);
-    }
+    //public void Add(string key, JsonDataValue value)
+    //{
+    //    _values.Add(key, value);
+    //}
 
     public bool ContainsKey(string key)
     {
