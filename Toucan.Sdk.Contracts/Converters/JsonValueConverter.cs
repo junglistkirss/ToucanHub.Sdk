@@ -11,7 +11,7 @@ public sealed class JsonObjectConverter : JsonConverter<JsonDataObject>
         if (reader.TokenType != JsonTokenType.StartObject)
             throw new JsonException($"JsonTokenType was of type {reader.TokenType}, only objects are supported");
 
-        JsonDataObject obj = [];
+        Dictionary<string, JsonDataValue> values = [];
         while (reader.Read())
         {
             if (reader.TokenType == JsonTokenType.EndObject)
@@ -27,9 +27,9 @@ public sealed class JsonObjectConverter : JsonConverter<JsonDataObject>
             reader.Read();
 
             JsonDataValue value = JsonSerializer.Deserialize<JsonDataValue>(ref reader, options);
-            obj.Put(propertyName, value);
+            values.Add(propertyName, value);
         }
-        return obj;
+        return new JsonDataObject(values);
     }
 
     public override void Write(Utf8JsonWriter writer, JsonDataObject value, JsonSerializerOptions options)
@@ -59,7 +59,7 @@ public sealed class JsonArrayConverter : JsonConverter<JsonDataArray>
 
     public override void Write(Utf8JsonWriter writer, JsonDataArray value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, (IList<JsonDataValue>)value, options);
+        JsonSerializer.Serialize(writer, (IReadOnlyList<JsonDataValue>)value, options);
     }
 }
 

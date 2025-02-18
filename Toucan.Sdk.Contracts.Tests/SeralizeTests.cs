@@ -97,7 +97,7 @@ public class SeralizeTests
     [Fact]
     public void ObjectSerialization__InlineCompare()
     {
-        JsonDataObject dat = new() { { "prop1", "string_value" } };
+        JsonDataObject dat = new(new Dictionary<string, JsonDataValue> { { "prop1", "string_value" } });
         string inline = CommonJson.Stringify(dat);
         JsonDataObject deserialized = CommonJson.FastRead<JsonDataObject>(inline);
         Assert.Equal(dat, deserialized);
@@ -106,7 +106,7 @@ public class SeralizeTests
     [Fact]
     public void ObjectSerialization__Compare()
     {
-        JsonDataObject dat = new() { { "prop1", "string_value" } };
+        JsonDataObject dat = new(new Dictionary<string, JsonDataValue> { { "prop1", "string_value" } });
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataObject deserialized = CommonJson.FastRead<JsonDataObject>(serialized);
 
@@ -144,7 +144,7 @@ public class SeralizeTests
     [Fact]
     public void RawArraySerialization__Compare()
     {
-        JsonDataArray dat = [1, "string_value"];
+        JsonDataArray dat = new JsonDataArray([1, "string_value"]);
 
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataArray deserialized = CommonJson.FastRead<JsonDataArray>(serialized);
