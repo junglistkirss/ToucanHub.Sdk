@@ -10,9 +10,9 @@ public interface IVersionCriteria
 
 public interface IEntityCriteria
 {
-    public StringifyFilter<DomainId>? Id { get; }
+    public DomainId? Id { get; }
     public DateFilter? Created { get; }
-    public StringifyFilter<RefToken>? Creator { get; }
+    public RefToken? Creator { get; }
     public DateFilter? LastModified { get; }
-    public StringifyFilter<RefToken>? Modifier { get; }
+    public RefToken? Modifier { get; }
 }
