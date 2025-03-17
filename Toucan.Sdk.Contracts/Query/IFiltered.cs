@@ -1,6 +1,6 @@
 ﻿namespace Toucan.Sdk.Contracts.Query;
 
-public interface IFilteredSet<TFilter>
+public interface IFiltered<TFilter>
 {
     public TFilter Filter { get; }
 }

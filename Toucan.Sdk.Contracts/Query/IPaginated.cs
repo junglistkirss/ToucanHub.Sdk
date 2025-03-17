@@ -2,7 +2,7 @@
 
 namespace Toucan.Sdk.Contracts.Query;
 
-public interface IPaginatedSet<TSort>
+public interface IPaginated<TSort>
     where TSort : notnull
 {
     Pagination Pagination { get; }
