@@ -1,7 +1,6 @@
 ﻿namespace Toucan.Sdk.Contracts.Query;
 
-public interface IFilteredSet<TFilter, TCriteria>
-    where TFilter : BaseFilterNode<TCriteria>
+public interface IFilteredSet<TFilter>
 {
-    public TFilter? Filter { get; }
+    public TFilter Filter { get; }
 }
