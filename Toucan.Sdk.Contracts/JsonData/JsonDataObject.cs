@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics.Contracts;
+using Toucan.Sdk.Contracts.Extensions;
 using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.JsonData;

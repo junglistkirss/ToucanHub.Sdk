@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Toucan.Sdk.Contracts.JsonData;
 
@@ -72,10 +73,14 @@ public sealed class JsonValueConverter : JsonConverter<JsonDataValue>
             JsonTokenType.True => true,
             JsonTokenType.False => false,
             JsonTokenType.Null => JsonDataValue.Null,
-            JsonTokenType.Number => reader.GetDouble(),
+            JsonTokenType.Number => 
+                reader.TryGetDouble(out double dbl) ? dbl
+                : reader.TryGetInt64(out long l) ? l
+                : reader.TryGetDecimal(out decimal dec) ? dec
+                : throw new InvalidDataException(),
             JsonTokenType.String => reader.GetString(),
-            JsonTokenType.StartObject => JsonSerializer.Deserialize<JsonDataObject>(ref reader, options),
-            JsonTokenType.StartArray => JsonSerializer.Deserialize<JsonDataArray>(ref reader, options),
+            JsonTokenType.StartObject => JsonSerializer.Deserialize<JsonDataObject>(ref reader, options) ?? JsonDataValue.Null,
+            JsonTokenType.StartArray => JsonSerializer.Deserialize<JsonDataArray>(ref reader, options) ?? JsonDataValue.Null,
             _ => throw new NotSupportedException("Unknown json token type"),
         };
     }
@@ -99,8 +104,58 @@ public sealed class JsonValueConverter : JsonConverter<JsonDataValue>
             case JsonDataValueType.String:
                 writer.WriteStringValue(value.AsString());
                 break;
+            case JsonDataValueType.DateTime:
+                writer.WriteStringValue(value.AsDateTime().ToString(null, CultureInfo.InvariantCulture));
+                break;
+            case JsonDataValueType.DateTimeOffset:
+                writer.WriteStringValue(value.AsDateTimeOffset().ToString(null, CultureInfo.InvariantCulture));
+                break;
+            case JsonDataValueType.DateOnly:
+                writer.WriteStringValue(value.AsDateOnly().ToString(null, CultureInfo.InvariantCulture));
+                break;
+            case JsonDataValueType.TimeOnly:
+                writer.WriteStringValue(value.AsTimeOnly().ToString(null, CultureInfo.InvariantCulture));
+                break;
+            case JsonDataValueType.TimeSpan:
+                writer.WriteStringValue(value.AsTimeSpan().ToString(null, CultureInfo.InvariantCulture));
+                break;
             case JsonDataValueType.Number:
-                writer.WriteNumberValue(value.AsNumber());
+                switch (value.NumericType)
+                {
+                    case JsonDataNumberType.Byte:
+                        writer.WriteNumberValue(value.AsByte());
+                        break;
+                    case JsonDataNumberType.SByte:
+                        writer.WriteNumberValue(value.AsSByte());
+                        break;
+                    case JsonDataNumberType.Short:
+                        writer.WriteNumberValue(value.AsShort());
+                        break;
+                    case JsonDataNumberType.Int32:
+                        writer.WriteNumberValue(value.AsInt());
+                        break;
+                    case JsonDataNumberType.Int64:
+                        writer.WriteNumberValue(value.AsLong());
+                        break;
+                    case JsonDataNumberType.UShort:
+                        writer.WriteNumberValue(value.AsUShort());
+                        break;
+                    case JsonDataNumberType.UInt32:
+                        writer.WriteNumberValue(value.AsUInt());
+                        break;
+                    case JsonDataNumberType.UInt64:
+                        writer.WriteNumberValue(value.AsLong());
+                        break;
+                    case JsonDataNumberType.Double:
+                        writer.WriteNumberValue(value.AsDouble());
+                        break;
+                    case JsonDataNumberType.Float:
+                        writer.WriteNumberValue(value.AsFloat());
+                        break;
+                    case JsonDataNumberType.Decimal:
+                        writer.WriteNumberValue(value.AsDecimal());
+                        break;
+                }
                 break;
             default:
                 throw new NotSupportedException();
