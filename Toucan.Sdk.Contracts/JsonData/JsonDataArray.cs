@@ -9,8 +9,6 @@ public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IReadOnlyL
 
     public int Count => _values.Length;
 
-    public bool IsReadOnly => false;
-
     public JsonDataValue this[int index] { get => _values[index]; }
 
     public JsonDataArray()

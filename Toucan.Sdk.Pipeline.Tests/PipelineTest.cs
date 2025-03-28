@@ -30,11 +30,11 @@ public class PipelineTest : IDisposable
         middlewareSimple = Substitute.For<RichMiddlewareHandle<CounterContext>>();
         asyncMiddlewareSimple = Substitute.For<AsyncRichMiddlewareHandle<CounterContext>>();
 
-        asyncMiddlewareSimple(default!, default(RichNextAsyncDelegate<CounterContext>)!)
+        asyncMiddlewareSimple(default!, default!)
            .ReturnsForAnyArgs(ci => ci.ArgAt<RichNextAsyncDelegate<CounterContext>>(1).Invoke(ci.ArgAt<CounterContext>(0)));
 
         middlewareSimple
-            .WhenForAnyArgs(x => x(default!, default(RichNextDelegate<CounterContext>)!))
+            .WhenForAnyArgs(x => x(default!, default!))
             .Do(ci => ci.ArgAt<RichNextDelegate<CounterContext>>(1).Invoke(ci.ArgAt<CounterContext>(0)));
     }
 

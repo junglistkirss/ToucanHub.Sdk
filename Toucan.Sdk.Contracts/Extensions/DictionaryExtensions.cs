@@ -1,14 +1,14 @@
-﻿namespace Toucan.Sdk.Contracts.JsonData;
+﻿namespace Toucan.Sdk.Contracts.Extensions;
 
-internal static class DictionaryExtensions
+public static class DictionaryExtensions
 {
 
     public static bool EqualsReadOnlyDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue>? other)
         where TKey : notnull
-        => EqualsReadOnlyDictionary(dictionary, other, EqualityComparer<TValue>.Default);
+        => dictionary.EqualsReadOnlyDictionary(other, EqualityComparer<TValue>.Default);
     public static bool EqualsDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue>? other)
         where TKey : notnull
-        => EqualsDictionary(dictionary, other, EqualityComparer<TValue>.Default);
+        => dictionary.EqualsDictionary(other, EqualityComparer<TValue>.Default);
 
     private static bool EqualsKeyValuePairs<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> dictionary, IEnumerable<KeyValuePair<TKey, TValue>>? other, IEqualityComparer<TValue> valueComparer)
       where TKey : notnull
@@ -28,10 +28,10 @@ internal static class DictionaryExtensions
 
     public static bool EqualsReadOnlyDictionary<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue>? other, IEqualityComparer<TValue> valueComparer)
         where TKey : notnull
-        => EqualsKeyValuePairs(dictionary, other, valueComparer);
+        => dictionary.EqualsKeyValuePairs(other, valueComparer);
     public static bool EqualsDictionary<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue>? other, IEqualityComparer<TValue> valueComparer)
         where TKey : notnull
-        => EqualsKeyValuePairs(dictionary, other, valueComparer);
+        => dictionary.EqualsKeyValuePairs(other, valueComparer);
 
     public static int DictionaryHashCode<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> keyComparer, IEqualityComparer<TValue> valueComparer)
         where TKey : notnull
