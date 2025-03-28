@@ -9,18 +9,18 @@ public enum JsonDataValueType
     Number,
     String,
     Boolean,
-    DateTime,
-    DateTimeOffset,
-    DateOnly,
-    TimeSpan,
-    TimeOnly,
+    //DateTime,
+    //DateTimeOffset,
+    //DateOnly,
+    //TimeSpan,
+    //TimeOnly,
 }
 
-public enum JsonDataNumberType
-{
-    Unprecised,
-    Byte, SByte,
-    Short, Int32, Int64,
-    UShort, UInt32, UInt64,
-    Double, Float, Decimal,
-}
+//public enum JsonDataNumberType
+//{
+//    Unprecised,
+//    Byte, SByte,
+//    Short, Int32, Int64,
+//    UShort, UInt32, UInt64,
+//    Double, Float, Decimal,
+//}

@@ -18,65 +18,33 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
     private readonly object? _value;
     private readonly JsonDataValueType _type;
-    private readonly JsonDataNumberType? _numericType;
 
     public JsonDataValueType Type => _type;
-    public JsonDataNumberType NumericType => _numericType ?? throw new InvalidDataException();
+
+    public object? RawValue => _value;
 
     private JsonDataValue(object? value, JsonDataValueType type)
     {
         _value = value;
         _type = type;
     }
-    public JsonDataValue(byte value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Byte;
-    }
-    public JsonDataValue(sbyte value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.SByte;
-    }
-    public JsonDataValue(short value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Short;
-    }
-    public JsonDataValue(ushort value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.UShort;
-    }
-    public JsonDataValue(int value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Int32;
-    }
-    public JsonDataValue(uint value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.UInt32;
-    }
-    public JsonDataValue(long value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Int64;
-    }
-    public JsonDataValue(ulong value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.UInt64;
-    }
-    public JsonDataValue(double value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Double;
-    }
-    public JsonDataValue(decimal value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Decimal;
-    }
-    public JsonDataValue(float value) : this(value, JsonDataValueType.Number)
-    {
-        _numericType = JsonDataNumberType.Float;
-    }
-    public JsonDataValue(DateTime value) : this(value, JsonDataValueType.DateTime) { }
-    public JsonDataValue(DateTimeOffset value) : this(value, JsonDataValueType.DateTimeOffset) { }
-    public JsonDataValue(TimeSpan value) : this(value, JsonDataValueType.TimeSpan) { }
-    public JsonDataValue(DateOnly value) : this(value, JsonDataValueType.DateOnly) { }
-    public JsonDataValue(TimeOnly value) : this(value, JsonDataValueType.TimeOnly) { }
+    public JsonDataValue(byte[] value) : this(value, JsonDataValueType.String) { }
+    public JsonDataValue(byte value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(sbyte value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(short value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(ushort value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(int value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(uint value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(long value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(ulong value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(double value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(decimal value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(float value) : this(value, JsonDataValueType.Number) { }
+    public JsonDataValue(DateTime value) : this(value, JsonDataValueType.String) { }
+    public JsonDataValue(DateTimeOffset value) : this(value, JsonDataValueType.String) { }
+    public JsonDataValue(TimeSpan value) : this(value, JsonDataValueType.String) { }
+    public JsonDataValue(DateOnly value) : this(value, JsonDataValueType.String) { }
+    public JsonDataValue(TimeOnly value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(bool value) : this(value, JsonDataValueType.Boolean) { }
     public JsonDataValue(string? value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(JsonDataArray value) : this(value, JsonDataValueType.Array) { }
@@ -91,12 +59,17 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
         return Type == JsonDataValueType.Null;
     }
 
-    public bool IsBoolean([NotNullWhen(true)] out bool? result)
+    public bool IsBoolean([NotNullWhen(true)] out bool result)
     {
-        result = null;
+        result = default;
+        if (_value is bool typed)
+        {
+            result = typed;
+            return true;
+        }
         if (Type == JsonDataValueType.Boolean)
         {
-            result = AsBoolean();
+            result = Convert.ToBoolean(_value);
             return true;
         }
         else if (bool.TryParse(_value?.ToString(), out bool value))
@@ -109,7 +82,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
     public bool AsBoolean()
     {
-        return (bool)_value!;
+        if (IsBoolean(out bool value))
+            return value;
+        throw new InvalidCastException();
     }
 
     //public bool IsNumber([NotNullWhen(true)] out object? result)
@@ -131,9 +106,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsByte([NotNullWhen(true)] out byte result)
     {
         result = default;
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Byte)
+        if (_value is byte b)
         {
-            result = (byte)_value!;
+            result = b;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -157,9 +132,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsSByte([NotNullWhen(true)] out sbyte result)
     {
         result = default;
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.SByte)
+        if (_value is sbyte typed)
         {
-            result = (sbyte)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -183,9 +158,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsShort([NotNullWhen(true)] out short result)
     {
         result = default;
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Short)
+        if (_value is short typed)
         {
-            result = (short)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -209,9 +184,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsUShort([NotNullWhen(true)] out ushort result)
     {
         result = default;
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.UShort)
+        if (_value is ushort typed)
         {
-            result = (ushort)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -235,9 +210,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsInt([NotNullWhen(true)] out int result)
     {
         result = default;
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Int32)
+        if (_value is int typed)
         {
-            result = (int)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -261,10 +236,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsUInt([NotNullWhen(true)] out uint result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.UInt32)
+        if (_value is uint typed)
         {
-            result = (uint)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -288,10 +262,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsLong([NotNullWhen(true)] out long result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Int64)
+        if (_value is long typed)
         {
-            result = (long)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -315,10 +288,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsFloat([NotNullWhen(true)] out float result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Float)
+        if (_value is float typed)
         {
-            result = (float)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -342,10 +314,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsDouble([NotNullWhen(true)] out double result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Double)
+        if (_value is double typed)
         {
-            result = (double)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -369,10 +340,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsDecimal([NotNullWhen(true)] out decimal result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.Decimal)
+        if (_value is decimal typed)
         {
-            result = (decimal)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -396,10 +366,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsULong([NotNullWhen(true)] out ulong result)
     {
         result = default;
-
-        if (Type == JsonDataValueType.Number && NumericType == JsonDataNumberType.UInt64)
+        if (_value is ulong typed)
         {
-            result = (ulong)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.Number)
@@ -423,10 +392,14 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public bool IsString([NotNullWhen(true)] out string? result)
     {
         result = null;
-
+        if (_value is string typed)
+        {
+            result = typed;
+            return true;
+        }
         if (Type == JsonDataValueType.String)
         {
-            result = (string?)_value!;
+            result = _value?.ToString()!;
             return true;
         }
         return false;
@@ -437,11 +410,33 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             return str;
         throw new InvalidCastException();
     }
+
+    public bool IsBinary([NotNullWhen(true)] out byte[]? result)
+    {
+        result = null;
+        if (_value is byte[] typed)
+        {
+            result = typed;
+            return true;
+        }
+        if (IsString(out string? str))
+        {
+            result = Convert.FromBase64String(str);
+            return true;
+        }
+        return false;
+    }
+    public byte[]? AsBinary()
+    {
+        if (IsBinary(out byte[]? str))
+            return str;
+        throw new InvalidCastException();
+    }
     public bool IsGuid([NotNullWhen(true)] out Guid result)
     {
         result = Guid.Empty;
 
-        if (Type == JsonDataValueType.String && _value is Guid gid)
+        if (_value is Guid gid)
         {
             result = gid;
             return true;
@@ -459,17 +454,16 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = DomainId.Empty;
 
-        if (Type == JsonDataValueType.String)
-            if (_value is DomainId did)
-            {
-                result = did;
-                return true;
-            }
-            else if (DomainId.TryParse(_value?.ToString(), out DomainId id))
-            {
-                result = id;
-                return true;
-            }
+        if (_value is DomainId did)
+        {
+            result = did;
+            return true;
+        }
+        else if (DomainId.TryParse(_value?.ToString(), out DomainId id))
+        {
+            result = id;
+            return true;
+        }
         return false;
     }
 
@@ -477,17 +471,16 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = Slug.Empty;
 
-        if (Type == JsonDataValueType.String)
-            if (_value is Slug s)
-            {
-                result = s;
-                return true;
-            }
-            else if (Slug.TryParse(_value?.ToString(), out Slug id))
-            {
-                result = id;
-                return true;
-            }
+        if (_value is Slug s)
+        {
+            result = s;
+            return true;
+        }
+        else if (Slug.TryParse(_value?.ToString(), out Slug id))
+        {
+            result = id;
+            return true;
+        }
         return false;
     }
 
@@ -495,9 +488,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = default!;
 
-        if (Type == JsonDataValueType.DateTime)
+        if (_value is DateTime typed)
         {
-            result = (DateTime)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.String && DateTime.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateTime value))
@@ -517,9 +510,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = default!;
 
-        if (Type == JsonDataValueType.DateTimeOffset)
+        if (_value is DateTimeOffset typed)
         {
-            result = (DateTimeOffset)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.String && DateTimeOffset.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateTimeOffset value))
@@ -539,9 +532,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = default!;
 
-        if (Type == JsonDataValueType.TimeSpan)
+        if (_value is TimeSpan typed)
         {
-            result = (TimeSpan)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.String && TimeSpan.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out TimeSpan value))
@@ -561,9 +554,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = default!;
 
-        if (Type == JsonDataValueType.DateOnly)
+        if (_value is DateOnly typed)
         {
-            result = (DateOnly)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.String && DateOnly.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateOnly value))
@@ -583,9 +576,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         result = default!;
 
-        if (Type == JsonDataValueType.TimeOnly)
+        if (_value is TimeOnly typed)
         {
-            result = (TimeOnly)_value!;
+            result = typed;
             return true;
         }
         if (Type == JsonDataValueType.String && TimeOnly.TryParse(_value!.ToString(), CultureInfo.InvariantCulture, out TimeOnly value))
@@ -600,10 +593,14 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             return res;
         throw new InvalidCastException();
     }
-    public bool IsArray([NotNullWhen(true)] out JsonDataArray? result)
+    public bool IsArray([NotNullWhen(true)] out JsonDataArray result)
     {
-        result = null;
-
+        result = default!;
+        if(_value is JsonDataArray typed)
+        {
+            result = typed;
+            return true;
+        }
         if (Type == JsonDataValueType.Array)
         {
             result = AsArray();
@@ -613,13 +610,19 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     }
     public JsonDataArray AsArray()
     {
-        return (JsonDataArray)_value!;
+        if (IsArray(out JsonDataArray res))
+            return res;
+        throw new InvalidCastException();
     }
 
-    public bool IsObject([NotNullWhen(true)] out JsonDataObject? result)
+    public bool IsObject([NotNullWhen(true)] out JsonDataObject result)
     {
-        result = null;
-
+        result = default!;
+        if (_value is JsonDataObject typed)
+        {
+            result = typed;
+            return true;
+        }
         if (Type == JsonDataValueType.Object)
         {
             result = AsObject();
@@ -630,7 +633,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
     public JsonDataObject AsObject()
     {
-        return (JsonDataObject)_value!;
+        if (IsObject(out JsonDataObject res))
+            return res;
+        throw new InvalidCastException();
     }
 
     private static JsonDataValue Enumerate(IEnumerable elements)
@@ -646,9 +651,13 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     private static JsonDataValue Objectize(IDictionary elements)
     {
         Dictionary<string, JsonDataValue> values = [];
-        foreach (var item in elements)
+        IDictionaryEnumerator enumerator = elements.GetEnumerator();
+        while(enumerator.MoveNext()) 
         {
-            values.Add("", Create(item));
+            string? key = enumerator.Key.ToString();
+            if (string.IsNullOrEmpty(key))
+                throw new InvalidDataException("Null key not allowed");
+            values.Add(key, Create(enumerator.Value));
         }
         return new JsonDataObject(values);
     }
@@ -722,6 +731,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             long typed => typed,
             ulong typed => typed,
             string typed => typed,
+            byte[] typed => typed,
 
             JsonDataArray typed => typed,
             JsonDataObject typed => typed,
@@ -785,7 +795,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             _ => throw new InvalidOperationException("Type is invalid"),
         };
     }
+   
 
+    public static implicit operator JsonDataValue(byte[] value) => new(value);
 
     public static implicit operator JsonDataValue(Guid value) => new(value);
     public static implicit operator JsonDataValue(Slug value) => new(value);
