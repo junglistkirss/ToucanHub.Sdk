@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections;
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Toucan.Sdk.Contracts.JsonData;
 using Toucan.Sdk.Contracts.Messages;
@@ -149,7 +150,7 @@ public class SeralizeTests
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataArray deserialized = CommonJson.FastRead<JsonDataArray>(serialized);
         Assert.Equal(dat.Count, deserialized.Count);
-        
+
         for (int i = 0; i < dat.Count; i++)
         {
             Assert.True(dat[i].IsByte(out byte byteExpected));
@@ -221,6 +222,17 @@ public class SeralizeTests
             Assert.True(deserialized[i].IsDouble(out double doubleActual));
             Assert.Equal(doubleExpected, doubleActual);
         }
+    }
+
+    [Fact]
+    public void DictionarySerialization__Compare()
+    {
+        JsonDataValue dat = JsonDataValue.Create((IDictionary)(new Dictionary<string, object?>() { { "key", 123 } }));
+
+        byte[] serialized = CommonJson.FastWrite(dat);
+        JsonDataObject deserialized = CommonJson.FastRead<JsonDataObject>(serialized);
+        Assert.Equal(123, dat.AsObject()["key"].AsInt());
+        Assert.Equal(123, deserialized["key"].AsInt());
     }
 
     [Fact]
