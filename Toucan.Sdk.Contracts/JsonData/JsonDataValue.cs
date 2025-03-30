@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Toucan.Sdk.Contracts.Extensions;
 using Toucan.Sdk.Contracts.Names;
 using Toucan.Sdk.Contracts.Wrapper;
@@ -54,38 +55,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public JsonDataValue(Slug value) : this(value, JsonDataValueType.String) { }
 
 
-    public bool IsNull()
-    {
-        return Type == JsonDataValueType.Null;
-    }
-
-    public bool IsBoolean([NotNullWhen(true)] out bool result)
-    {
-        result = default;
-        if (_value is bool typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Boolean)
-        {
-            result = Convert.ToBoolean(_value);
-            return true;
-        }
-        else if (bool.TryParse(_value?.ToString(), out bool value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-
-    public bool AsBoolean()
-    {
-        if (IsBoolean(out bool value))
-            return value;
-        throw new InvalidCastException();
-    }
 
     //public bool IsNumber([NotNullWhen(true)] out object? result)
     //{
@@ -103,541 +72,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     //    return _value!;
     //}
 
-    public bool IsByte([NotNullWhen(true)] out byte result)
-    {
-        result = default;
-        if (_value is byte b)
-        {
-            result = b;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToByte(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && byte.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out byte value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public byte AsByte()
-    {
-        if (IsByte(out byte value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsSByte([NotNullWhen(true)] out sbyte result)
-    {
-        result = default;
-        if (_value is sbyte typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToSByte(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && sbyte.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out sbyte value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public sbyte AsSByte()
-    {
-        if (IsSByte(out sbyte value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsShort([NotNullWhen(true)] out short result)
-    {
-        result = default;
-        if (_value is short typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToInt16(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && short.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out short value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public short AsShort()
-    {
-        if (IsShort(out short value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsUShort([NotNullWhen(true)] out ushort result)
-    {
-        result = default;
-        if (_value is ushort typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToUInt16(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && ushort.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out ushort value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public ushort AsUShort()
-    {
-        if (IsUShort(out ushort value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsInt([NotNullWhen(true)] out int result)
-    {
-        result = default;
-        if (_value is int typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToInt32(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && int.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out int value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public int AsInt()
-    {
-        if (IsInt(out int value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsUInt([NotNullWhen(true)] out uint result)
-    {
-        result = default;
-        if (_value is uint typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToUInt32(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && uint.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out uint value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public uint AsUInt()
-    {
-        if (IsUInt(out uint value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsLong([NotNullWhen(true)] out long result)
-    {
-        result = default;
-        if (_value is long typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToInt64(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && long.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out long value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public long AsLong()
-    {
-        if (IsLong(out long value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsFloat([NotNullWhen(true)] out float result)
-    {
-        result = default;
-        if (_value is float typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToSingle(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && float.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out float value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public float AsFloat()
-    {
-        if (IsFloat(out float value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsDouble([NotNullWhen(true)] out double result)
-    {
-        result = default;
-        if (_value is double typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToDouble(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && double.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out double value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public double AsDouble()
-    {
-        if (IsDouble(out double value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsDecimal([NotNullWhen(true)] out decimal result)
-    {
-        result = default;
-        if (_value is decimal typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToDecimal(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && decimal.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out decimal value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public decimal AsDecimal()
-    {
-        if (IsDecimal(out decimal value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsULong([NotNullWhen(true)] out ulong result)
-    {
-        result = default;
-        if (_value is ulong typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Number)
-        {
-            result = Convert.ToUInt64(_value);
-            return true;
-        }
-        if (Type == JsonDataValueType.String && ulong.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out ulong value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public ulong AsULong()
-    {
-        if (IsULong(out ulong value))
-            return value;
-        throw new InvalidCastException();
-    }
-    public bool IsString([NotNullWhen(true)] out string? result)
-    {
-        result = null;
-        if (_value is string typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String)
-        {
-            result = _value?.ToString()!;
-            return true;
-        }
-        return false;
-    }
-    public string? AsString()
-    {
-        if (IsString(out string? str))
-            return str;
-        throw new InvalidCastException();
-    }
-
-    public bool IsBinary([NotNullWhen(true)] out byte[]? result)
-    {
-        result = null;
-        if (_value is byte[] typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (IsString(out string? str))
-        {
-            result = Convert.FromBase64String(str);
-            return true;
-        }
-        return false;
-    }
-    public byte[]? AsBinary()
-    {
-        if (IsBinary(out byte[]? str))
-            return str;
-        throw new InvalidCastException();
-    }
-    public bool IsGuid([NotNullWhen(true)] out Guid result)
-    {
-        result = Guid.Empty;
-
-        if (_value is Guid gid)
-        {
-            result = gid;
-            return true;
-        }
-        else if (Guid.TryParse(_value?.ToString(), out Guid id))
-        {
-            result = id;
-            return true;
-        }
-        return false;
-    }
-
-
-    public bool IsDomainId([NotNullWhen(true)] out DomainId result)
-    {
-        result = DomainId.Empty;
-
-        if (_value is DomainId did)
-        {
-            result = did;
-            return true;
-        }
-        else if (DomainId.TryParse(_value?.ToString(), out DomainId id))
-        {
-            result = id;
-            return true;
-        }
-        return false;
-    }
-
-    public bool IsSlug([NotNullWhen(true)] out Slug result)
-    {
-        result = Slug.Empty;
-
-        if (_value is Slug s)
-        {
-            result = s;
-            return true;
-        }
-        else if (Slug.TryParse(_value?.ToString(), out Slug id))
-        {
-            result = id;
-            return true;
-        }
-        return false;
-    }
-
-    public bool IsDateTime([NotNullWhen(true)] out DateTime result)
-    {
-        result = default!;
-
-        if (_value is DateTime typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String && DateTime.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateTime value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public DateTime AsDateTime()
-    {
-        if (IsDateTime(out DateTime res))
-            return res;
-        throw new InvalidCastException();
-    }
-    public bool IsDateTimeOffset([NotNullWhen(true)] out DateTimeOffset result)
-    {
-        result = default!;
-
-        if (_value is DateTimeOffset typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String && DateTimeOffset.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateTimeOffset value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public DateTimeOffset AsDateTimeOffset()
-    {
-        if (IsDateTimeOffset(out DateTimeOffset res))
-            return res;
-        throw new InvalidCastException();
-    }
-    public bool IsTimeSpan([NotNullWhen(true)] out TimeSpan result)
-    {
-        result = default!;
-
-        if (_value is TimeSpan typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String && TimeSpan.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out TimeSpan value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public TimeSpan AsTimeSpan()
-    {
-        if (IsTimeSpan(out TimeSpan res))
-            return res;
-        throw new InvalidCastException();
-    }
-    public bool IsDateOnly([NotNullWhen(true)] out DateOnly result)
-    {
-        result = default!;
-
-        if (_value is DateOnly typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String && DateOnly.TryParse(_value?.ToString(), CultureInfo.InvariantCulture, out DateOnly value))
-        {
-            result = value;
-            return true;
-        }
-        return false;
-    }
-    public DateOnly AsDateOnly()
-    {
-        if (IsDateOnly(out DateOnly res))
-            return res;
-        throw new InvalidCastException();
-    }
-    public bool IsTimeOnly([NotNullWhen(true)] out TimeOnly result)
-    {
-        result = default!;
-
-        if (_value is TimeOnly typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.String && TimeOnly.TryParse(_value!.ToString(), CultureInfo.InvariantCulture, out TimeOnly value))
-        {
-            result = value;
-        }
-        return false;
-    }
-    public TimeOnly AsTimeOnly()
-    {
-        if (IsTimeOnly(out TimeOnly res))
-            return res;
-        throw new InvalidCastException();
-    }
-    public bool IsArray([NotNullWhen(true)] out JsonDataArray result)
-    {
-        result = default!;
-        if(_value is JsonDataArray typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Array)
-        {
-            result = AsArray();
-            return true;
-        }
-        return false;
-    }
-    public JsonDataArray AsArray()
-    {
-        if (IsArray(out JsonDataArray res))
-            return res;
-        throw new InvalidCastException();
-    }
-
-    public bool IsObject([NotNullWhen(true)] out JsonDataObject result)
-    {
-        result = default!;
-        if (_value is JsonDataObject typed)
-        {
-            result = typed;
-            return true;
-        }
-        if (Type == JsonDataValueType.Object)
-        {
-            result = AsObject();
-            return true;
-        }
-        return false;
-    }
-
-    public JsonDataObject AsObject()
-    {
-        if (IsObject(out JsonDataObject res))
-            return res;
-        throw new InvalidCastException();
-    }
-
     private static JsonDataValue Enumerate(IEnumerable elements)
     {
         List<JsonDataValue> values = [];
@@ -652,7 +86,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         Dictionary<string, JsonDataValue> values = [];
         IDictionaryEnumerator enumerator = elements.GetEnumerator();
-        while(enumerator.MoveNext()) 
+        while (enumerator.MoveNext())
         {
             string? key = enumerator.Key.ToString();
             if (string.IsNullOrEmpty(key))
@@ -662,8 +96,46 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
         return new JsonDataObject(values);
     }
 
+    private static JsonDataValue ParseNode(JsonNode? element)
+    {
+        if(element is null)
+            return Null;
 
-    private static JsonDataValue Parse(JsonElement element)
+        switch (element.GetValueKind())
+        {
+            case JsonValueKind.False:
+                return False;
+            case JsonValueKind.True:
+                return True;
+            case JsonValueKind.Number:
+                return new JsonDataValue(element.AsValue(), JsonDataValueType.Number);
+            case JsonValueKind.String:
+                return new(element.AsValue(), JsonDataValueType.String);
+            case JsonValueKind.Null:
+                return Null;
+            case JsonValueKind.Object:
+                Dictionary<string, JsonDataValue> values = [];
+
+                foreach (KeyValuePair<string, JsonNode?> property in element.AsObject())
+                {
+                    values.Add(property.Key, ParseNode(property.Value));
+                }
+
+                return new JsonDataObject(values);
+            case JsonValueKind.Array:
+                List<JsonDataValue> arr = [];
+
+                foreach (JsonNode? item in element.AsArray())
+                {
+                    arr.Add(ParseNode(item!));
+                }
+
+                return new JsonDataArray(arr);
+            default:
+                throw new NotSupportedException();
+        }
+    }
+    private static JsonDataValue ParseElement(JsonElement element)
     {
         switch (element.ValueKind)
         {
@@ -672,9 +144,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             case JsonValueKind.True:
                 return True;
             case JsonValueKind.Number:
-                return new JsonDataValue(element.GetRawText(), JsonDataValueType.Unspecified);
+                return new JsonDataValue(element.GetRawText(), JsonDataValueType.Number);
             case JsonValueKind.String:
-                return new(element.GetString(), JsonDataValueType.Unspecified);
+                return new(element.GetString(), JsonDataValueType.String);
             case JsonValueKind.Null:
                 return Null;
             case JsonValueKind.Object:
@@ -682,7 +154,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
                 foreach (JsonProperty property in element.EnumerateObject())
                 {
-                    values.Add(property.Name, Parse(property.Value));
+                    values.Add(property.Name, ParseElement(property.Value));
                 }
 
                 return new JsonDataObject(values);
@@ -691,7 +163,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
                 foreach (JsonElement item in element.EnumerateArray())
                 {
-                    arr.Add(Parse(item));
+                    arr.Add(ParseElement(item));
                 }
 
                 return new JsonDataArray(arr);
@@ -736,8 +208,9 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             JsonDataArray typed => typed,
             JsonDataObject typed => typed,
 
-            JsonElement typed => Parse(typed),
-            JsonDocument typed => Parse(typed.RootElement),
+            JsonNode typed => ParseNode(typed),
+            JsonElement typed => ParseElement(typed),
+            JsonDocument typed => ParseElement(typed.RootElement),
 
             //DomainId[] typed => Array(typed),
             //IEnumerable<JsonDataObject> typed => Array(typed),
@@ -795,7 +268,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
             _ => throw new InvalidOperationException("Type is invalid"),
         };
     }
-   
+
 
     public static implicit operator JsonDataValue(byte[] value) => new(value);
 
@@ -845,8 +318,8 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
         return Type switch
         {
             JsonDataValueType.Null => null,
-            JsonDataValueType.Object => AsObject().ToSource(),
-            JsonDataValueType.Array => AsArray().ToSource(),
+            JsonDataValueType.Object => this.AsObject().ToSource(),
+            JsonDataValueType.Array => this.AsArray().ToSource(),
             _ => _value,
         };
     }
