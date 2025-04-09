@@ -73,7 +73,10 @@ public static class FilterExtensions
             && filter.Value <= long.MaxValue;
     }
 
-    public static bool IsValid([NotNullWhen(true)] this ExistsFilter<DomainId>? filter)
+    public static bool IsValid([NotNullWhen(true)] this ExistsFilter<DomainId>? filter) => filter.IsValid<DomainId>();
+    public static bool IsValid([NotNullWhen(true)] this ExistsFilter<Slug>? filter) => filter.IsValid<Slug>();
+    public static bool IsValid([NotNullWhen(true)] this ExistsFilter<Tag>? filter) => filter.IsValid<Tag>();
+    public static bool IsValid<T>([NotNullWhen(true)] this ExistsFilter<T>? filter)
     {
         return filter is not null
             && filter.Value?.Length > 0;
