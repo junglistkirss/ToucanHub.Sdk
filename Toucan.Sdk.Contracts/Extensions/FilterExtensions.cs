@@ -1,4 +1,5 @@
-﻿using Toucan.Sdk.Contracts.Names;
+﻿using Toucan.Sdk.Contracts.Criterias;
+using Toucan.Sdk.Contracts.Names;
 using Toucan.Sdk.Contracts.Query.Filters;
 using Toucan.Sdk.Contracts.Query.Filters.Abstractions;
 
@@ -22,6 +23,21 @@ public static class FilterExtensions
             );
     }
 
+    public static bool IsValidVersionCriteria([NotNullWhen(true)] this IVersionCriteria? filter)
+    {
+        if (filter is null)
+            return false;
+
+        return filter.Version.IsValid();
+    }
+
+    public static bool IsValidEntityCriteria([NotNullWhen(true)] this IEntityCriteria? filter)
+    {
+        if(filter is null)
+            return false;
+
+        return filter.Modifier.HasValue || filter.Creator.HasValue || filter.Created.IsValid() || filter.LastModified.IsValid();
+    }
     public static bool IsValid([NotNullWhen(true)] this StringifyFilter<Slug>? filter)
     {
         return filter is not null
