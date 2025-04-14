@@ -10,7 +10,6 @@ public interface IVersionCriteria
 
 public interface IEntityCriteria
 {
-    public DomainId? Id { get; }
     public DateFilter? Created { get; }
     public RefToken? Creator { get; }
     public DateFilter? LastModified { get; }
