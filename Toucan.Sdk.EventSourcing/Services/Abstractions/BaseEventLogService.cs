@@ -11,7 +11,6 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
     where TStoredProjection : IStoredProjection<THeadersStorage, TProjectionDataStorage>
 {
     protected abstract Task<StreamInfo<TStreamKey>> CreateStreamIfNotExists(TStoredStream stream, CancellationToken cancellationToken = default);
-    protected abstract Task RenameStreamAsync(TStreamKey streamId, string name, CancellationToken cancellationToken = default);
     protected abstract Task LockStreamAsync(TStreamKey streamId, CancellationToken cancellationToken = default);
     protected abstract Task<StreamInfo<TStreamKey>> ReadStreamInfo(TStreamKey streamId, CancellationToken cancellationToken = default);
     protected abstract Task<Versioning> ReadStreamVersion(TStreamKey streamId, CancellationToken cancellationToken = default);
