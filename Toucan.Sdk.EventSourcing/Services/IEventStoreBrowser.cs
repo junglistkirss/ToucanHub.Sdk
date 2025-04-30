@@ -7,14 +7,10 @@ public interface IEventStoreProjectionBrowser<TStreamKey, TStoredProjection, THe
     where TStoredProjection : IStoredProjection<THeaders, TStorageData>
 
 {
-    IAsyncEnumerable<TStoredProjection> BrowseProjectionsAsync(int offset, int limit);
-    IAsyncEnumerable<TStoredProjection> BrowseProjectionsAsync(TStreamKey streamId, ProjectionsFilter<TStorageData> search, int offset, int limit);
+    IAsyncEnumerable<TStoredProjection> BrowseProjectionsAsync(SearchProjection search, int offset, int limit, CancellationToken cancellationToken = default);
 }
 
-public sealed record class ProjectionsFilter<TStorageData>
-{
-
-}
+public record class SearchProjection { }
 
 public interface IEventStoreBrowser<TStreamKey, TStoredStream, TStoredEvent, THeadersStorage, TEventDataStorage>
     where TStreamKey : struct
@@ -22,10 +18,8 @@ public interface IEventStoreBrowser<TStreamKey, TStoredStream, TStoredEvent, THe
     where TStoredEvent : IStoredEvent<THeadersStorage, TEventDataStorage>
 
 {
-    IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(int offset, int limit, SearchStreams? search = null);
-    IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId, int offset, int limit, SearchEvents<TEventDataStorage>? search = null);
+    IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default);
 }
 
-public sealed record class SearchEvents<TStorageData> { }
-public sealed record class SearchStreams { }
+public record class SearchStreams { }
 

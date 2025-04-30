@@ -7,14 +7,21 @@ public interface IEventStore<TStreamKey, TEvent> : IEventStoreReader<TStreamKey,
     where TEvent : notnull
 {
     Task<IStorageTransaction> BeginTransactionAsync(Action? commitCallback = null, CancellationToken ct = default);
-    Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, string typeName, CancellationToken ct = default);
+    Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, CancellationToken ct = default);
 }
 public interface IEventStoreReader<TStreamKey, TEvent>
     where TStreamKey : struct
     where TEvent : notnull
 {
-    Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, CancellationToken ct = default);
-    Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, Versioning offset, CancellationToken ct = default);
+    Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, SearchEvents predicate, int offset, int limit, CancellationToken ct = default);
+}
+
+public record class SearchEvents
+{
+    public readonly static SearchEvents Empty = new();
+
+    public Versioning? Before { get; init; }
+    public Versioning? After { get; init; }
 }
 
 public interface IEventStoreWriter<TStreamKey, TEvent>

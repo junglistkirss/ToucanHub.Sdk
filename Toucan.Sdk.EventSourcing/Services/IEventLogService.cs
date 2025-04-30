@@ -3,22 +3,19 @@ using Toucan.Sdk.EventSourcing.Models;
 
 namespace Toucan.Sdk.EventSourcing.Services;
 
-public interface IEventLogService<TStreamKey, TEventData, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> : IDisposable
+public interface IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>
     where TStreamKey : struct
-    where TEventData : notnull
     where TStoredStream : IStoredStream<TStreamKey>
     where TStoredEvent : IStoredEvent<THeadersStorage, TEventDataStorage>
     where TStoredProjection : IStoredProjection<THeadersStorage, TProjectionDataStorage>
 {
     Task<IStorageTransaction> CreateLogStorageTransactionAsync(CancellationToken ct, Action? commitCallback = null);
 
-    Task<StreamInfo<TStreamKey>> CreateStream(TStoredStream stream, CancellationToken ct);
+    Task<StreamInfo<TStreamKey>> CreateStreamAsync(TStoredStream stream, CancellationToken ct);
 
     Task LockStream(TStreamKey streamId, CancellationToken ct);
 
-    Task RenameStream(TStreamKey streamId, Func<string> name, CancellationToken ct);
-
-    Task<(ETag, Versioning)> AppendToStreamOptimistic(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default);
+    Task<(ETag, Versioning)> AppendToStream(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default);
 
     Task DeleteStream(TStreamKey streamId, CancellationToken cancellationToken = default);
 
@@ -32,22 +29,12 @@ public interface IEventLogService<TStreamKey, TEventData, TStoredStream, TStored
 
     Task<EventMetadata> GetEventMetadata(TStreamKey streamId, Guid eventId, CancellationToken cancellationToken = default);
 
-    public Task<TStoredEvent[]> GetEventsAfter(TStreamKey streamId, Versioning fromEventVersion, CancellationToken cancellationToken = default) => Task.FromResult(GetEventsAfter(streamId, fromEventVersion).ToBlockingEnumerable(cancellationToken).ToArray());
+    IAsyncEnumerable<TStoredEvent> GetEvents(TStreamKey streamId, SearchEvents predicate, int offset, int limit, CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<TStoredEvent> GetEventsAfter(TStreamKey streamId, Versioning fromEventVersion);
+    IAsyncEnumerable<TStoredProjection> GetProjections(SearchProjection predicate, int offset, int limit, CancellationToken cancellationToken = default);
 
-    public Task<TStoredEvent[]> GetEventsBefore(TStreamKey streamId, Versioning beforeEventVersion, CancellationToken cancellationToken = default) => Task.FromResult(GetEventsBefore(streamId, beforeEventVersion).ToBlockingEnumerable(cancellationToken).ToArray());
-    IAsyncEnumerable<TStoredEvent> GetEventsBefore(TStreamKey streamId, Versioning beforeEventVersion);
+    IAsyncEnumerable<TStoredStream> GetKeys(SearchStreams predicate, int offset, int limit, CancellationToken cancellationToken = default);
 
-    public Task<TStoredEvent[]> GetEvents(TStreamKey streamId, Expression<Func<TStoredEvent, bool>> predicate, int offset, int limit, CancellationToken cancellationToken = default) => Task.FromResult(GetEvents(streamId, predicate, offset, limit).ToBlockingEnumerable(cancellationToken).ToArray());
-    IAsyncEnumerable<TStoredEvent> GetEvents(TStreamKey streamId, Expression<Func<TStoredEvent, bool>> predicate, int offset, int limit);
-
-    public Task<TStoredStream[]> GetKeys(Expression<Func<TStoredStream, bool>> predicate, int offset, int limit, CancellationToken cancellationToken = default) => Task.FromResult(GetKeys(predicate, offset, limit).ToBlockingEnumerable(cancellationToken).ToArray());
-    IAsyncEnumerable<TStoredStream> GetKeys(Expression<Func<TStoredStream, bool>> predicate, int offset, int limit);
-
-    public Task<TStoredEvent[]> GetAllEvents(TStreamKey streamId, CancellationToken cancellationToken = default) => Task.FromResult(GetAllEvents(streamId).ToBlockingEnumerable(cancellationToken).ToArray());
-    IAsyncEnumerable<TStoredEvent> GetAllEvents(TStreamKey streamId);
-
-    Task AppendProjectionOptimistic(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default);
+    Task AppendProjection(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default);
     Task<TStoredProjection?> GetLastProjection(TStreamKey streamId, CancellationToken cancellationToken = default);
 }

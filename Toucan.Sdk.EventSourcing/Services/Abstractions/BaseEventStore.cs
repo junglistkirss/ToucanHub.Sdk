@@ -4,7 +4,7 @@ using Toucan.Sdk.EventSourcing.Models;
 namespace Toucan.Sdk.EventSourcing.Services.Abstractions;
 
 public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>(
-    IEventLogService<TStreamKey, TEvent, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> eventLogService,
+    IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> eventLogService,
     ISerializer<TStreamKey, TEvent, TProjection, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> serializer
     ) :
     IEventStore<TStreamKey, TEvent>,
@@ -47,7 +47,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 TStoredEvent[] inputEvents = events
                     .Select(x => serializer.Serialize(key, next++, x)).ToArray();
 
-                return await eventLogService.AppendToStreamOptimistic(key, [.. inputEvents], ct);
+                return await eventLogService.AppendToStream(key, [.. inputEvents], ct);
             }
             finally
             {
@@ -72,32 +72,8 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 semaphore.Release();
             }
     }
-    public async Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, CancellationToken ct = default)
-    {
-        using (EventSourcingTelemetry.Start("read_events"))
-            try
-            {
-                await semaphore.WaitAsync(ct);
 
-                HashSet<TEvent> output = [];
-                Versioning version = Versioning.Zero;
-                ETag tag = ETag.Empty;
-                foreach (TStoredEvent item in await eventLogService.GetAllEvents(key, ct))
-                {
-                    if (!output.Add(serializer.Deserialize(item)))
-                        throw new EventStoreException($"Duplicate event {item.Id}");
-                    version = item.Position;
-                    tag = item.Metadata.ETag;
-                }
-                return new EventSlice<TEvent>(version, tag, [.. output]);
-            }
-            finally
-            {
-                semaphore.Release();
-            }
-    }
-
-    public async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, string streamTypeName, CancellationToken ct = default)
+    public async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("open_stream"))
             try
@@ -106,8 +82,8 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 StreamInfo<TStreamKey> info = await eventLogService.GetStreamInfo(key, ct);
                 if (info.Version == Versioning.Any)
                 {
-                    TStoredStream stream = BuildStream(key, streamTypeName);
-                    StreamInfo<TStreamKey> last = await eventLogService.CreateStream(stream, ct);
+                    TStoredStream stream = InitStream(key);
+                    StreamInfo<TStreamKey> last = await eventLogService.CreateStreamAsync(stream, ct);
                     return last;
                 }
                 return info;
@@ -118,7 +94,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    protected abstract TStoredStream BuildStream(TStreamKey key, string streamTypeName);
+    protected abstract TStoredStream InitStream(TStreamKey key);
 
     public async Task SaveSnapshotAsync(TStreamKey key, Versioning version, TProjection projection, CancellationToken ct = default)
     {
@@ -132,7 +108,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
 
                 TStoredProjection data = serializer.Serialize(key, version, projection);
 
-                await eventLogService.AppendProjectionOptimistic(key, data, ct);
+                await eventLogService.AppendProjection(key, data, ct);
             }
             finally
             {
@@ -140,7 +116,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, Versioning offset, CancellationToken ct = default)
+    public async Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, SearchEvents predicate, int offset, int limit, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("read_events_offset"))
             try
@@ -149,7 +125,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 HashSet<TEvent> output = [];
                 Versioning version = Versioning.Zero;
                 ETag tag = ETag.Empty;
-                foreach (TStoredEvent item in await eventLogService.GetEventsAfter(key, offset, ct))
+                await foreach (TStoredEvent item in eventLogService.GetEvents(key, predicate, offset, limit, ct))
                 {
                     if (!output.Add(serializer.Deserialize(item)))
                         throw new EventStoreException($"Duplicate event {item.Id}");
