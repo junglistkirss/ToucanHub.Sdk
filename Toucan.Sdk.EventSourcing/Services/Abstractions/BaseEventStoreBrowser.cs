@@ -26,6 +26,6 @@ public abstract class BaseEventStoreBrowser<TStreamKey, TEvent, TStoredStream, T
 
     public IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit,CancellationToken cancellationToken = default)
     {
-        return eventLogService.GetKeys(search, offset, limit, cancellationToken);
+        return eventLogService.GetStreams(search, offset, limit, cancellationToken);
     }
 }

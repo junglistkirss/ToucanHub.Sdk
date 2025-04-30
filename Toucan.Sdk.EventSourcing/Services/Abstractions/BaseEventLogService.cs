@@ -1,9 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using System.IO;
+using System.Linq.Expressions;
 using Toucan.Sdk.EventSourcing.Models;
 
 namespace Toucan.Sdk.EventSourcing.Services.Abstractions;
 
-public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>
+public abstract class BaseEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>
     : IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>
     where TStreamKey : struct
     where TStoredStream : IStoredStream<TStreamKey>
@@ -17,7 +18,9 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
     protected abstract Task<(ETag, Versioning)> WriteEventsAsync(TStreamKey streamId, IEnumerable<TStoredEvent> events, CancellationToken cancellationToken = default);
     protected abstract Task WriteProjectionAsync(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default);
     protected abstract Task<TStoredProjection?> ReadLastProjectionAsync(TStreamKey streamId, CancellationToken cancellationToken = default);
-    protected abstract IAsyncEnumerable<TStoredEvent> ReadEventsAsync(TStreamKey streamId, SearchEvents search, int offset, CancellationToken cancellationToken = default);
+    protected abstract IAsyncEnumerable<TStoredEvent> ReadEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default);
+    protected abstract IAsyncEnumerable<TStoredProjection> ReadProjectionsAsync(SearchProjection search, int offset, int limit, CancellationToken cancellationToken = default);
+    protected abstract IAsyncEnumerable<TStoredStream> ReadStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default);
     protected abstract Task<StreamMetadata> ReadStreamMetadataAsync(TStreamKey streamId, CancellationToken cancellationToken);
     protected abstract Task<EventMetadata> ReadEventMetadataAsync(TStreamKey streamId, Guid eventId, CancellationToken cancellationToken);
     protected abstract Task DeleteStreamAsync(TStreamKey streamId, CancellationToken cancellationToken);
@@ -47,7 +50,7 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
             throw new EventStoreException("Appending events in stream fails", ex);
         }
     }
-   
+
     public async Task AppendProjection(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default)
     {
         try
@@ -71,7 +74,7 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
             throw new EventStoreException("Deleting event fails", ex);
         }
     }
-   
+
     public async Task DeleteStream(TStreamKey streamId, CancellationToken cancellationToken = default)
     {
         try
@@ -112,7 +115,7 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
             throw new EventStoreException("Retrieving stream info fails", ex);
         }
     }
-    
+
     public async Task<Versioning> GetStreamVersion(TStreamKey streamId, CancellationToken cancellationToken = default)
     {
         try
@@ -126,12 +129,45 @@ public abstract class BaseEventLogService<TStreamKey,  TStoredStream, TStoredEve
         }
     }
 
-    public abstract IAsyncEnumerable<TStoredEvent> GetEvents(TStreamKey streamId, SearchEvents predicate, int offset, int limit, CancellationToken cancellationToken = default);
-    
-    public abstract IAsyncEnumerable<TStoredProjection> GetProjections(SearchProjection predicate, int offset, int limit, CancellationToken cancellationToken = default);
-    
-    public abstract IAsyncEnumerable<TStoredStream> GetKeys(SearchStreams predicate, int offset, int limit, CancellationToken cancellationToken = default);
-    
+    public IAsyncEnumerable<TStoredEvent> GetEvents(TStreamKey streamId, SearchEvents predicate, int offset, int limit, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return ReadEventsAsync(streamId, predicate, offset, limit, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new EventStoreException("Reading events failed", ex);
+
+        }
+    }
+
+    public IAsyncEnumerable<TStoredProjection> GetProjections(SearchProjection predicate, int offset, int limit, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return ReadProjectionsAsync(predicate, offset, limit, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new EventStoreException("Reading projections failed", ex);
+
+        }
+    }
+
+    public IAsyncEnumerable<TStoredStream> GetStreams(SearchStreams predicate, int offset, int limit, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return ReadStreamsAsync(predicate, offset, limit, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            throw new EventStoreException("Reading streams failed", ex);
+
+        }
+    }
+
     public async Task LockStream(TStreamKey streamId, CancellationToken ct)
     {
         try

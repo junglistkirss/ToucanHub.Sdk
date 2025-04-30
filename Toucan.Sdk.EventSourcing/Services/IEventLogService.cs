@@ -33,7 +33,7 @@ public interface IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStor
 
     IAsyncEnumerable<TStoredProjection> GetProjections(SearchProjection predicate, int offset, int limit, CancellationToken cancellationToken = default);
 
-    IAsyncEnumerable<TStoredStream> GetKeys(SearchStreams predicate, int offset, int limit, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<TStoredStream> GetStreams(SearchStreams predicate, int offset, int limit, CancellationToken cancellationToken = default);
 
     Task AppendProjection(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default);
     Task<TStoredProjection?> GetLastProjection(TStreamKey streamId, CancellationToken cancellationToken = default);
