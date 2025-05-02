@@ -5,7 +5,7 @@ using Toucan.Sdk.EventSourcing.Models;
 namespace Toucan.Sdk.EventSourcing.Services.Abstractions;
 
 public abstract class BaseEventStoreBrowser<TStreamKey, TEvent, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage>(
-    IEventLogService<TStreamKey,  TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> eventLogService) :
+    IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStoredProjection, THeadersStorage, TEventDataStorage, TProjectionDataStorage> eventLogService) :
     IEventStoreBrowser<TStreamKey, TStoredStream, TStoredEvent, THeadersStorage, TEventDataStorage>,
     IEventStoreProjectionBrowser<TStreamKey, TStoredProjection, THeadersStorage, TProjectionDataStorage>
     where TStreamKey : struct
@@ -14,7 +14,7 @@ public abstract class BaseEventStoreBrowser<TStreamKey, TEvent, TStoredStream, T
     where TStoredEvent : IStoredEvent<THeadersStorage, TEventDataStorage>
     where TStoredProjection : IStoredProjection<THeadersStorage, TProjectionDataStorage>
 {
-    public IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId,  SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default)
     {
         return eventLogService.GetEvents(streamId, search, offset, limit, cancellationToken);
     }
@@ -24,7 +24,7 @@ public abstract class BaseEventStoreBrowser<TStreamKey, TEvent, TStoredStream, T
         return eventLogService.GetProjections(search, offset, limit, cancellationToken);
     }
 
-    public IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit,CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default)
     {
         return eventLogService.GetStreams(search, offset, limit, cancellationToken);
     }

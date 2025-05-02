@@ -18,6 +18,7 @@ public interface IEventStoreBrowser<TStreamKey, TStoredStream, TStoredEvent, THe
     where TStoredEvent : IStoredEvent<THeadersStorage, TEventDataStorage>
 
 {
+    IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default);
     IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default);
 }
 
