@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Reactive</PackageId>
-    <Version>0.0.9</Version>
+    <Version>0.0.10</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Reactive</PackageDescription>
