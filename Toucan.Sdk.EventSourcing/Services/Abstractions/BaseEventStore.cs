@@ -18,7 +18,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
 {
     private readonly SemaphoreSlim semaphore = new(1, 1);
 
-    public async Task<IStorageTransaction> BeginTransactionAsync(Action? commitCallback = null, CancellationToken ct = default)
+    public virtual async Task<IStorageTransaction> BeginTransactionAsync(Action? commitCallback = null, CancellationToken ct = default)
     {
         try
         {
@@ -32,7 +32,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
         }
     }
 
-    public async Task<(ETag, Versioning)> WriteAsync(TStreamKey key, Versioning expectedVersion, IReadOnlyCollection<TEvent> events, CancellationToken ct = default)
+    public virtual async Task<(ETag, Versioning)> WriteAsync(TStreamKey key, Versioning expectedVersion, IReadOnlyCollection<TEvent> events, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("write_events"))
             try
@@ -55,7 +55,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task DeleteAsync(TStreamKey key, Versioning expectedVersion, CancellationToken ct = default)
+    public virtual async Task DeleteAsync(TStreamKey key, Versioning expectedVersion, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("delete_stream"))
             try
@@ -73,7 +73,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, CancellationToken ct = default)
+    public virtual async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("open_stream"))
             try
@@ -96,7 +96,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
 
     protected abstract TStoredStream InitStream(TStreamKey key);
 
-    public async Task SaveSnapshotAsync(TStreamKey key, Versioning version, TProjection projection, CancellationToken ct = default)
+    public virtual async Task SaveSnapshotAsync(TStreamKey key, Versioning version, TProjection projection, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("write_projection"))
             try
@@ -116,7 +116,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, SearchEvents predicate, int offset, int limit, CancellationToken ct = default)
+    public virtual async Task<EventSlice<TEvent>> ReadAsync(TStreamKey key, SearchEvents predicate, int offset, int limit, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("read_events_offset"))
             try
@@ -141,7 +141,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public async Task<(Versioning Version, ETag ETag, TProjection? Data)> GetLastSnapshotAsync(TStreamKey key, CancellationToken ct = default)
+    public virtual async Task<(Versioning Version, ETag ETag, TProjection? Data)> GetLastSnapshotAsync(TStreamKey key, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("read_projection"))
             try

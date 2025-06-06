@@ -14,17 +14,17 @@ public abstract class BaseEventStoreBrowser<TStreamKey, TEvent, TStoredStream, T
     where TStoredEvent : IStoredEvent<THeadersStorage, TEventDataStorage>
     where TStoredProjection : IStoredProjection<THeadersStorage, TProjectionDataStorage>
 {
-    public IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<TStoredEvent> BrowseEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default)
     {
         return eventLogService.GetEvents(streamId, search, offset, limit, cancellationToken);
     }
 
-    public IAsyncEnumerable<TStoredProjection> BrowseProjectionsAsync(SearchProjection search, int offset, int limit, CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<TStoredProjection> BrowseProjectionsAsync(SearchProjection search, int offset, int limit, CancellationToken cancellationToken = default)
     {
         return eventLogService.GetProjections(search, offset, limit, cancellationToken);
     }
 
-    public IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default)
+    public virtual IAsyncEnumerable<TStoredStream> BrowseStreamsAsync(SearchStreams search, int offset, int limit, CancellationToken cancellationToken = default)
     {
         return eventLogService.GetStreams(search, offset, limit, cancellationToken);
     }
