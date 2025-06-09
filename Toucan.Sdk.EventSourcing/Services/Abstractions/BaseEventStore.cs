@@ -32,7 +32,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
         }
     }
 
-    public virtual async Task<(ETag, Versioning)> WriteAsync(TStreamKey key, Versioning expectedVersion, IReadOnlyCollection<TEvent> events, CancellationToken ct = default)
+    public virtual async Task<StreamInfo<TStreamKey>> WriteAsync(TStreamKey key, Versioning expectedVersion, IReadOnlyCollection<TEvent> events, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("write_events"))
             try
@@ -73,7 +73,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    public virtual async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, CancellationToken ct = default)
+    public virtual async Task<StreamInfo<TStreamKey>> EnsureOpenAsync(TStreamKey key, string? type, CancellationToken ct = default)
     {
         using (EventSourcingTelemetry.Start("open_stream"))
             try
@@ -82,7 +82,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
                 StreamInfo<TStreamKey> info = await eventLogService.GetStreamInfo(key, ct);
                 if (info.Version == Versioning.Any)
                 {
-                    TStoredStream stream = InitStream(key);
+                    TStoredStream stream = InitStream(key, type);
                     StreamInfo<TStreamKey> last = await eventLogService.CreateStreamAsync(stream, ct);
                     return last;
                 }
@@ -94,7 +94,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
             }
     }
 
-    protected abstract TStoredStream InitStream(TStreamKey key);
+    protected abstract TStoredStream InitStream(TStreamKey key, string? type);
 
     public virtual async Task SaveSnapshotAsync(TStreamKey key, Versioning version, TProjection projection, CancellationToken ct = default)
     {

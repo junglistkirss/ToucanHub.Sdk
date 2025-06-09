@@ -15,7 +15,7 @@ public interface IEventLogService<TStreamKey, TStoredStream, TStoredEvent, TStor
 
     Task LockStream(TStreamKey streamId, CancellationToken ct);
 
-    Task<(ETag, Versioning)> AppendToStream(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default);
+    Task<StreamInfo<TStreamKey>> AppendToStream(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default);
 
     Task DeleteStream(TStreamKey streamId, CancellationToken cancellationToken = default);
 

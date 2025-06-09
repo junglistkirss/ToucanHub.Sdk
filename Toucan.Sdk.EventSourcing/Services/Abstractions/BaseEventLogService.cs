@@ -15,7 +15,7 @@ public abstract class BaseEventLogService<TStreamKey, TStoredStream, TStoredEven
     protected abstract Task LockStreamAsync(TStreamKey streamId, CancellationToken cancellationToken = default);
     protected abstract Task<StreamInfo<TStreamKey>> ReadStreamInfo(TStreamKey streamId, CancellationToken cancellationToken = default);
     protected abstract Task<Versioning> ReadStreamVersion(TStreamKey streamId, CancellationToken cancellationToken = default);
-    protected abstract Task<(ETag, Versioning)> WriteEventsAsync(TStreamKey streamId, IEnumerable<TStoredEvent> events, CancellationToken cancellationToken = default);
+    protected abstract Task<StreamInfo<TStreamKey>> WriteEventsAsync(TStreamKey streamId, IEnumerable<TStoredEvent> events, CancellationToken cancellationToken = default);
     protected abstract Task WriteProjectionAsync(TStreamKey streamId, TStoredProjection projection, CancellationToken cancellationToken = default);
     protected abstract Task<TStoredProjection?> ReadLastProjectionAsync(TStreamKey streamId, CancellationToken cancellationToken = default);
     protected abstract IAsyncEnumerable<TStoredEvent> ReadEventsAsync(TStreamKey streamId, SearchEvents search, int offset, int limit, CancellationToken cancellationToken = default);
@@ -39,7 +39,7 @@ public abstract class BaseEventLogService<TStreamKey, TStoredStream, TStoredEven
     }
     public async Task<StreamInfo<TStreamKey>> CreateStreamAsync(TStoredStream stream, CancellationToken cancellationToken = default) => await CreateStreamIfNotExists(stream, cancellationToken);
 
-    public async Task<(ETag, Versioning)> AppendToStream(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default)
+    public async Task<StreamInfo<TStreamKey>> AppendToStream(TStreamKey streamId, TStoredEvent[] events, CancellationToken cancellationToken = default)
     {
         try
         {
