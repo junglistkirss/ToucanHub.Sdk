@@ -6,7 +6,6 @@ using NSubstitute;
 using System.Reactive.Concurrency;
 
 namespace Toucan.Sdk.Reactive.Tests;
-
 public class SchedulerTests
 {
     [Fact]
@@ -41,8 +40,6 @@ public class SchedulerTests
     [Fact]
     public async Task WithSchedulerProvider()
     {
-
-
         IServiceCollection services = new ServiceCollection();
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));

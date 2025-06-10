@@ -51,7 +51,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
-                        throw new ReactiveSubscriptionException("Error handling event", ex);
+                        subject.OnError(new ReactiveSubscriptionException("Error handling event", ex));
                     }
                 },
                 ex =>
@@ -107,7 +107,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
-                        throw new ReactiveSubscriptionException("Error handling event", ex);
+                        subject.OnError(new ReactiveSubscriptionException("Error handling event", ex));
                     }
                 },
                 async ex =>
@@ -145,7 +145,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
                     catch (Exception ex)
                     {
                         logger.LogError(ex, "Error handling event of type {EventType}", typeof(T));
-                        throw new ReactiveSubscriptionException("Error handling event", ex);
+                        subject.OnError(new ReactiveSubscriptionException("Error handling event", ex));
                     }
                 },
                 async ex =>
@@ -164,5 +164,11 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
         // Wrap subscription to ensure proper cleanup
         IDisposable managedSubscription = CreateManagedSubscription(subscription);
         return managedSubscription;
+    }
+
+    public void Throw(Exception value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        subject.OnError(value);
     }
 }

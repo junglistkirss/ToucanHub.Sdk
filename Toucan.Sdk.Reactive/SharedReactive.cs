@@ -188,4 +188,12 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
             service.Complete();
         }
     }
+
+    public void Throw(TServiceId serviceId, Exception exception)
+    {
+        if (services.TryGetValue(serviceId, out ManagedReactive? service))
+        {
+            service.Throw(exception);
+        }
+    }
 }

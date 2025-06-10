@@ -283,4 +283,17 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
 
         subject.OnCompleted();
     }
+
+    public void Throw(Exception value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        if (isStarted.Task.IsCompletedSuccessfully)
+        {
+            subject.OnError(value);
+        }
+        else
+        {
+            logger.LogWarning("Attempted to throw error when service is not started");
+        }
+    }
 }
