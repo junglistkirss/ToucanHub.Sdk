@@ -2,12 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using System.Numerics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Toucan.Sdk.Reactive;
 
@@ -94,11 +91,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
 
     public TServiceId Initialize()
     {
-        if (!isStarted.Task.IsCompletedSuccessfully)
-        {
-            logger.LogError("Service is not running");
-            throw new InvalidOperationException("Service is not running");
-        }
+        EnsureStarted();
 
         TServiceId uid = generateServiceId();
         ManagedReactive managed = provider.GetRequiredService<ManagedReactive>();
@@ -111,13 +104,20 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
         }
         throw new InvalidOperationException($"Service with ID {uid} is already initialized");
     }
-    public void Initialize(TServiceId uid)
+
+    private void EnsureStarted()
     {
         if (!isStarted.Task.IsCompletedSuccessfully)
         {
             logger.LogError("Service is not running");
             throw new InvalidOperationException("Service is not running");
         }
+    }
+
+    public void Initialize(TServiceId uid)
+    {
+        EnsureStarted();
+
 
         ManagedReactive managed = provider.GetRequiredService<ManagedReactive>();
         if (services.TryAdd(uid, managed))
@@ -132,6 +132,8 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
 
     public void Kill(TServiceId serviceId)
     {
+        EnsureStarted();
+
         if (services.TryRemove(serviceId, out var service))
         {
             service.Dispose();
@@ -143,38 +145,25 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
 
     public IObservable<ChildServiceInfo<TServiceId>> Observe()
     {
+        EnsureStarted();
+
         return subject.AsObservable();
     }
 
-    public IDisposable Subscribe<T>(TServiceId serviceId, Action<T> handler, Action<Exception>? error = null, Action? complete = null)
-    {
-        if (services.TryGetValue(serviceId, out ManagedReactive? service))
-        {
-            return service.Subscribe(handler, error, complete);
-        }
-        return Disposable.Empty;
-    }
 
-    public IDisposable Subscribe<T>(TServiceId serviceId, Func<T, ValueTask> handler, Func<Exception, ValueTask>? error = null, Func<ValueTask>? complete = null)
+    public IObservable<T> Observe<T>(TServiceId serviceId)
     {
+        EnsureStarted();
         if (services.TryGetValue(serviceId, out ManagedReactive? service))
         {
-            return service.Subscribe(handler, error, complete);
+            return service.Observe<T>();
         }
-        return Disposable.Empty;
-    }
-
-    public IDisposable Subscribe<T>(TServiceId serviceId, Func<T, Task> handler, Func<Exception, Task>? error = null, Func<Task>? complete = null)
-    {
-        if (services.TryGetValue(serviceId, out ManagedReactive? service))
-        {
-            return service.Subscribe(handler, error, complete);
-        }
-        return Disposable.Empty;
+        return Observable.Empty<T>();
     }
 
     public void Publish<T>(TServiceId serviceId, T value)
     {
+        EnsureStarted();
         if (services.TryGetValue(serviceId, out ManagedReactive? service))
         {
             service.Publish(value);
@@ -183,6 +172,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
 
     public void Complete(TServiceId serviceId)
     {
+        EnsureStarted();
         if (services.TryGetValue(serviceId, out ManagedReactive? service))
         {
             service.Complete();
@@ -191,9 +181,30 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
 
     public void Throw(TServiceId serviceId, Exception exception)
     {
+        EnsureStarted();
         if (services.TryGetValue(serviceId, out ManagedReactive? service))
         {
             service.Throw(exception);
         }
+    }
+
+    public IDisposable Register(TServiceId serviceId, IDisposable disposable)
+    {
+        EnsureStarted();
+        if (services.TryGetValue(serviceId, out ManagedReactive? service))
+        {
+            return service.Register(disposable);
+        }
+        return Disposable.Empty;
+    }
+
+    public IDisposable Register<T>(TServiceId serviceId, Func<IObservable<T>, IDisposable> configure)
+    {
+        EnsureStarted();
+        if (services.TryGetValue(serviceId, out ManagedReactive? service))
+        {
+            return service.Register(configure(service.Observe<T>()));
+        }
+        return Disposable.Empty;
     }
 }

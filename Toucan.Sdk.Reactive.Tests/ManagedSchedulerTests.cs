@@ -32,10 +32,10 @@ public class ManagedSchedulerTests
         IReactiveLauncher<Guid> launcher = scope.ServiceProvider.GetRequiredService<IReactiveLauncher<Guid>>();
         Guid srv = launcher.Initialize();
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, o => o.Subscribe(x =>
         {
             value = x;
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
         Assert.Null(value);
@@ -63,13 +63,13 @@ public class ManagedSchedulerTests
         IReactiveLauncher<Guid> launcher = scope.ServiceProvider.GetRequiredService<IReactiveLauncher<Guid>>();
         Guid srv = launcher.Initialize();
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, x => x.Subscribe(x =>
         {
             value = x;
-        }, null, () =>
+        }, () =>
         {
             value = "Goodbye";
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
         pub.Publish(srv, "Hello World 2");
@@ -104,13 +104,13 @@ public class ManagedSchedulerTests
         Guid srv = Guid.NewGuid();
         launcher.Initialize(srv);
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, x => x.Subscribe(x =>
         {
             value = x;
-        }, null, () =>
+        }, () =>
         {
             value = "Goodbye";
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
         pub.Publish(srv, "Hello World 2");
@@ -145,13 +145,13 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = Guid.NewGuid();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, x => x.Subscribe(x =>
         {
             value = x;
-        }, null, () =>
+        }, () =>
         {
             value = "Goodbye";
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
         pub.Publish(srv, "Hello World 2");
@@ -181,22 +181,21 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = launcher.Initialize();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, x => x.Subscribe(x =>
         {
             ArgumentException.ThrowIfNullOrEmpty(x);
             value = x;
         }, ex =>
         {
             value = ex.Message;
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
-        pub.Publish<string>(srv, string.Empty);
         Assert.Null(value);
         schedule.AdvanceBy(1);
         Assert.Equal("Hello World", value);
-        schedule.Start();
-        Assert.NotEqual("Hello World", value);
+        pub.Publish(srv, string.Empty);
+        Assert.Throws<ArgumentException>(() => schedule.AdvanceBy(1));
     }
 
     [Fact]
@@ -220,19 +219,19 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = launcher.Initialize();
-        sub.Subscribe<string>(srv, x =>
+        sub.Register<string>(srv, x => x.Subscribe(x =>
         {
             value = x;
         }, ex =>
         {
             value = ex.Message;
-        });
+        }));
         IReactiveManagedDispatcher<Guid> pub = scope.ServiceProvider.GetRequiredService<IReactiveManagedDispatcher<Guid>>();
         pub.Publish(srv, "Hello World");
-        pub.Throw(srv, new Exception("bad vibes"));
         Assert.Null(value);
         schedule.AdvanceBy(1);
         Assert.Equal("Hello World", value);
+        pub.Throw(srv, new Exception("bad vibes"));
         schedule.Start();
         Assert.Equal("bad vibes", value);
     }
