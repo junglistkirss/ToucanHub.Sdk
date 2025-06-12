@@ -8,7 +8,7 @@
 
 	<PropertyGroup>
     <PackageId>Toucan.Sdk.Telemetry</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Telemetry</PackageDescription>
@@ -24,11 +24,11 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.11.2" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
-		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
 	</ItemGroup>
 
 </Project>
