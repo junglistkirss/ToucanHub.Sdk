@@ -10,9 +10,9 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
 {
 
     private readonly Subject<object> subject = new();
-    private readonly CompositeDisposable subscriptions = new();
+    private readonly CompositeDisposable subscriptions = [];
     private readonly IScheduler scheduler = schedulerProvider?.GetScheduler() ?? TaskPoolScheduler.Default;
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     public void Dispose()
     {

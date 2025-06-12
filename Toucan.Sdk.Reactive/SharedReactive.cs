@@ -18,9 +18,9 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
     where TServiceId : struct
 {
     private readonly Subject<ChildServiceInfo<TServiceId>> subject = new();
-    private readonly CompositeDisposable subscriptions = new();
+    private readonly CompositeDisposable subscriptions = [];
     private readonly ConcurrentDictionary<TServiceId, ManagedReactive> services = new();
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private TaskCompletionSource<bool> isStarted = new();
     private int isStarting;
     public Task<bool> WaitForStart(CancellationToken cancellationToken = default)
@@ -63,7 +63,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
         var newSource = new TaskCompletionSource<bool>();
         if (Interlocked.CompareExchange(ref isStarted, newSource, currentSource) == currentSource)
         {
-            currentSource.TrySetCanceled();
+            currentSource.TrySetCanceled(cancellationToken);
         }
 
         return Task.CompletedTask;
@@ -106,7 +106,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
         {
             ChildServiceInfo<TServiceId> info = new(uid, ManagedServiceState.Started);
             subject.OnNext(info);
-            logger.LogDebug($"Service {info} is running");
+            logger.LogDebug("Service {msg} is running", info);
             return uid;
         }
         throw new InvalidOperationException($"Service with ID {uid} is already initialized");
@@ -124,7 +124,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
         {
             ChildServiceInfo<TServiceId> info = new(uid, ManagedServiceState.Started);
             subject.OnNext(info);
-            logger.LogDebug($"Service {info} is running");
+            logger.LogDebug("Service {msg} is running", info);
         }else{
         throw new InvalidOperationException($"Service with ID {uid} is already initialized");
         }
@@ -137,7 +137,7 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
             service.Dispose();
             ChildServiceInfo<TServiceId> info = new(serviceId, ManagedServiceState.Stopped);
             subject.OnNext(info);
-            logger.LogDebug($"Service {info} is killed");
+            logger.LogDebug("Service {msg} is running", info);
         }
     }
 

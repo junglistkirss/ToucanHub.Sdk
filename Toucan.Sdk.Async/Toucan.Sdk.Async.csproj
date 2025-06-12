@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>Toucan.Async.Utils</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Authors>Christian Bourbier</Authors>
     <Company>Christian Bourbier</Company>
     <PackageDescription>Sdk Contracts</PackageDescription>

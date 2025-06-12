@@ -36,8 +36,8 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
 {
     private readonly Subject<object> subject = new();
     private readonly IScheduler scheduler = subscrptionsSchedulerProvider?.Scheduler ?? TaskPoolScheduler.Default;
-    private readonly CompositeDisposable subscriptions = new();
-    private readonly object _lock = new();
+    private readonly CompositeDisposable subscriptions = [];
+    private readonly Lock _lock = new();
     private TaskCompletionSource<bool> isStarted = new();
     private int isStarting;
     public Task<bool> WaitForStart(CancellationToken cancellationToken = default)
@@ -253,7 +253,7 @@ internal class ReactiveSubscriptions(ILogger<ReactiveSubscriptions> logger, ISub
         var newSource = new TaskCompletionSource<bool>();
         if (Interlocked.CompareExchange(ref isStarted, newSource, currentSource) == currentSource)
         {
-            currentSource.TrySetCanceled();
+            currentSource.TrySetCanceled(cancellationToken);
         }
 
         return Task.CompletedTask;

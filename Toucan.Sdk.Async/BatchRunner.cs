@@ -4,8 +4,8 @@ public class BatchRunner<T>(Func<T, bool> canParallelize, Func<T, Task> getTask,
 {
     public async Task RunBatchAsync(IEnumerable<T> jobs, CancellationToken cancellationToken)
     {
-        List<T> parallelJobs = new List<T>();
-        List<T> serialJobs = new List<T>();
+        List<T> parallelJobs = [];
+        List<T> serialJobs = [];
 
         foreach (T job in jobs)
         {
