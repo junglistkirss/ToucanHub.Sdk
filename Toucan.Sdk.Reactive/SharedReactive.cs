@@ -12,10 +12,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Toucan.Sdk.Reactive;
 
 public delegate TServiceId GenerateServiceId<TServiceId>()
-    where TServiceId : IEquatable<TServiceId>;
+    where TServiceId : struct;
 
 internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> logger, GenerateServiceId<TServiceId> generateServiceId, IServiceProvider provider) : IHostedService, IReactiveLauncher<TServiceId>, IReactiveManagedDispatcher<TServiceId>, IReactiveManagedSubscriber<TServiceId>
-    where TServiceId : IEquatable<TServiceId>
+    where TServiceId : struct
 {
     private readonly Subject<ChildServiceInfo<TServiceId>> subject = new();
     private readonly CompositeDisposable subscriptions = new();

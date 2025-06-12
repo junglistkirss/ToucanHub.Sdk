@@ -1,7 +1,7 @@
 namespace Toucan.Sdk.Reactive;
 
 public interface IReactiveLauncher<TServiceId>
-    where TServiceId : IEquatable<TServiceId>
+    where TServiceId : struct
 {
     Task<bool> WaitForStart(CancellationToken cancellationToken = default);
 

@@ -13,7 +13,7 @@ public static class ReactiveModule
     }
 
     public static IServiceCollection AddManagedReactiveHostedService<TServiceId>(this IServiceCollection services, GenerateServiceId<TServiceId> generateServiceId)
-        where TServiceId : IEquatable<TServiceId>
+        where TServiceId : struct
     {
         services.AddSingleton(generateServiceId);
         services.AddTransient<ManagedReactive>();
