@@ -1,17 +1,15 @@
 using Microsoft.Extensions.Logging;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace Toucan.Sdk.Reactive;
 
-internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLauncherSchedulerProvider? schedulerProvider = null) : IReactiveDispatcher, IReactiveManager, IDisposable
+internal class ManagedReactive(ILogger<ManagedReactive> logger) : IReactiveDispatcher, IReactiveManager, IDisposable
 {
 
     private readonly Subject<object> subject = new();
     private readonly CompositeDisposable subscriptions = [];
-    private readonly IScheduler scheduler = schedulerProvider?.GetScheduler() ?? TaskPoolScheduler.Default;
     private readonly Lock _lock = new();
 
     public void Dispose()
@@ -61,8 +59,7 @@ internal class ManagedReactive(ILogger<ManagedReactive> logger, IReactiveLaunche
     public IObservable<T> Observe<T>()
     {
         return subject
-           .OfType<T>()
-           .ObserveOn(scheduler);
+           .OfType<T>();
     }
 
     public IDisposable Register(IDisposable disposable)

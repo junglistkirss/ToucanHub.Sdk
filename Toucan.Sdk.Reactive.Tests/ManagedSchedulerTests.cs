@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace Toucan.Sdk.Reactive.Tests;
@@ -19,7 +20,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -32,7 +32,7 @@ public class ManagedSchedulerTests
         IReactiveLauncher<Guid> launcher = scope.ServiceProvider.GetRequiredService<IReactiveLauncher<Guid>>();
         Guid srv = launcher.Initialize();
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Register<string>(srv, o => o.Subscribe(x =>
+        sub.Register<string>(srv, o => o.ObserveOn(schedule).Subscribe(x =>
         {
             value = x;
         }));
@@ -50,7 +50,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -63,7 +62,7 @@ public class ManagedSchedulerTests
         IReactiveLauncher<Guid> launcher = scope.ServiceProvider.GetRequiredService<IReactiveLauncher<Guid>>();
         Guid srv = launcher.Initialize();
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Register<string>(srv, x => x.Subscribe(x =>
+        sub.Register<string>(srv, x => x.ObserveOn(schedule).Subscribe(x =>
         {
             value = x;
         }, () =>
@@ -90,7 +89,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -104,7 +102,7 @@ public class ManagedSchedulerTests
         Guid srv = Guid.NewGuid();
         launcher.Initialize(srv);
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
-        sub.Register<string>(srv, x => x.Subscribe(x =>
+        sub.Register<string>(srv, x => x.ObserveOn(schedule).Subscribe(x =>
         {
             value = x;
         }, () =>
@@ -131,7 +129,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -145,7 +142,7 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = Guid.NewGuid();
-        sub.Register<string>(srv, x => x.Subscribe(x =>
+        sub.Register<string>(srv, x => x.ObserveOn(schedule).Subscribe(x =>
         {
             value = x;
         }, () =>
@@ -167,7 +164,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -181,7 +177,7 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = launcher.Initialize();
-        sub.Register<string>(srv, x => x.Subscribe(x =>
+        sub.Register<string>(srv, x => x.ObserveOn(schedule).Subscribe(x =>
         {
             ArgumentException.ThrowIfNullOrEmpty(x);
             value = x;
@@ -205,7 +201,6 @@ public class ManagedSchedulerTests
         services.TryAddSingleton(s => Substitute.For<ILoggerFactory>());
         services.TryAddScoped(typeof(ILogger<>), typeof(MockLogger<>));
         services.TryAddScoped(s => Substitute.For<ILogger>());
-        services.TryAddSingleton<IReactiveLauncherSchedulerProvider>(new TestSubscriptionSchedulerProvider(schedule));
         services.AddManagedReactiveHostedService(Guid.NewGuid);
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         IEnumerable<IHostedService> hosteds = serviceProvider.GetServices<IHostedService>();
@@ -219,7 +214,7 @@ public class ManagedSchedulerTests
 
         IReactiveManagedSubscriber<Guid> sub = scope.ServiceProvider.GetRequiredService<IReactiveManagedSubscriber<Guid>>();
         Guid srv = launcher.Initialize();
-        sub.Register<string>(srv, x => x.Subscribe(x =>
+        sub.Register<string>(srv, x => x.ObserveOn(schedule).Subscribe(x =>
         {
             value = x;
         }, ex =>
