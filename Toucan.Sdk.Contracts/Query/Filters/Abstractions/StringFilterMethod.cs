@@ -10,15 +10,3 @@ public enum StringFilterMethod : byte
     IsNull = 1 << 5,
     IsEmpty = 1 << 6,
 }
-
-public enum HierarchyFilterMethod : byte
-{
-    Equals = 0,
-    Ancestor = 1 << 1,
-    Descendant = 1 << 2,
-}
-public enum CollectionFilterMethod : byte
-{
-    Any = 0,
-    All = 1 << 1,
-}
