@@ -5,8 +5,8 @@ using Toucan.Sdk.Contracts.Security;
 namespace Toucan.Sdk.Contracts.Extensions;
 public static class UserExtensions
 {
-    public static AppScope[] GetScopes(this ClaimsPrincipal principal)
-        => [.. principal.FindAll(TokenClaimNames.scope).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new AppScope(v))];
+    public static Realm[] GetScopes(this ClaimsPrincipal principal)
+        => [.. principal.FindAll(TokenClaimNames.scope).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new Realm(v))];
 
     public static Role[] GetRoles(this ClaimsPrincipal principal)
         => [.. principal.FindAll(ClaimTypes.Role).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new Role(v))];
