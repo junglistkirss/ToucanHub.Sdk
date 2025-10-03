@@ -49,7 +49,7 @@ public sealed class PermissionSet : ReadOnlyCollection<Permission>
 
     public bool Allows(Permission other) => this.Any(x => x.Allows(other));
 
-    public bool Includes(Permission other) => this.Any(x => x.Includes(other));
+    // public bool Includes(Permission other) => this.Any(x => x.Includes(other));
 
     public override string ToString() => display.Value;
 

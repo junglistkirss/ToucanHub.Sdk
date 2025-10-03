@@ -5,10 +5,10 @@ namespace Toucan.Sdk.Contracts.Security;
 
 public static partial class Permissions
 {
-    [GeneratedRegex("[^A-Za-z0-9-_\\^|*]+", RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+    [GeneratedRegex("[^A-Za-z0-9_\\^|*]+", RegexOptions.Singleline | RegexOptions.CultureInvariant)]
     private static partial Regex PartSanitizeRegex();
 
-    [GeneratedRegex("\\{([A-Za-z0-9-_]+)\\}", RegexOptions.Singleline | RegexOptions.CultureInvariant)]
+    [GeneratedRegex("\\{([A-Za-z0-9_]+)\\}", RegexOptions.Singleline | RegexOptions.CultureInvariant)]
     private static partial Regex WildcardRegex(); // IMPORTANT like SlugRegex with brackets !!
 
     private static string? Sanitize(this string? part)
@@ -18,16 +18,16 @@ public static partial class Permissions
         return PartSanitizeRegex().Replace(part, x => string.Empty);
     }
 
-    public static Permission For(this string id, params (Slug key, string? value)[] wildcards)
+    public static Permission For(this string id, params (string key, string value)[] placeholders)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
             throw new ArgumentException($"'{nameof(id)}' ne peut pas avoir une valeur null ou être un espace blanc.", nameof(id));
         }
-        return id.For(wildcards.ToDictionary(x => x.key, x => x.value));
+        return id.For(placeholders.ToDictionary(x => x.key, x => x.value));
     }
 
-    public static Permission For(this string id, IReadOnlyDictionary<Slug, string?> wildcards)
+    public static Permission For(this string id, IReadOnlyDictionary<string, string> placeholders)
     {
         if (string.IsNullOrWhiteSpace(id))
         {
@@ -36,7 +36,7 @@ public static partial class Permissions
 
         return new(WildcardRegex().Replace(id, match =>
          {
-             if (wildcards.TryGetValue(match.Groups[1].Value, out string? value))
+             if (placeholders.TryGetValue(match.Groups[1].Value, out string? value))
                  return value?.Sanitize() ?? Permission.Any;
              return Permission.Any;
          }).Trim());

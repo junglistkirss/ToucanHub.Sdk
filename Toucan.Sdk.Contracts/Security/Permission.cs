@@ -23,7 +23,7 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
 
     public bool Allows(Permission permission) => Covers(path, permission.path);
 
-    public bool Includes(Permission permission) => PartialCovers(path, permission.path);
+    //public bool Includes(Permission permission) => PartialCovers(path, permission.path);
 
     private static bool Covers(Part[] given, Part[] requested)
     {
@@ -39,16 +39,16 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
         return true;
     }
 
-    private static bool PartialCovers(Part[] given, Part[] requested)
-    {
-        for (int i = 0; i < Math.Min(given.Length, requested.Length); i++)
-        {
-            if (!Part.Intersects(ref given[i], ref requested[i], true))
-                return false;
-        }
+    // private static bool PartialCovers(Part[] given, Part[] requested)
+    // {
+    //     for (int i = 0; i < Math.Min(given.Length, requested.Length); i++)
+    //     {
+    //         if (!Part.Intersects(ref given[i], ref requested[i], true))
+    //             return false;
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     public bool StartsWith(string test) => Id.StartsWith(test, StringComparison.OrdinalIgnoreCase);
 
