@@ -27,16 +27,12 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
 
     private static bool Covers(Part[] given, Part[] requested)
     {
-        //if (given.Length > requested.Length)
-        //    return false;
+        if (given.Length > requested.Length)
+            return false;
 
-        for (int i = 0; i < requested.Length; i++)
+        for (int i = 0; i < given.Length; i++)
         {
-            if (i >= given.Length)
-            {
-                return Part.Intersects(ref given[given.Length - 1], ref requested[i], false);
-            } 
-            else if (!Part.Intersects(ref given[i], ref requested[i], false))
+            if (!Part.Intersects(ref given[i], ref requested[i], false))
                 return false;
         }
 
