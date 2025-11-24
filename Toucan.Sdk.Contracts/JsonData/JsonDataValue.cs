@@ -15,8 +15,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>
     public static readonly JsonDataValue Null = new(null, JsonDataValueType.Null);
     public static readonly JsonDataValue True = new(true);
     public static readonly JsonDataValue False = new(false);
-    //public static readonly JsonDataValue Zero = new(0.0d);
-
     private readonly object? _value;
     private readonly JsonDataValueType _type;
 
@@ -54,21 +52,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>
     public JsonDataValue(DomainId value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(Slug value) : this(value, JsonDataValueType.String) { }
 
-    public bool IsNumber([NotNullWhen(true)] out object? result)
-    {
-        result = null;
-
-        if (Type == JsonDataValueType.Number)
-        {
-            result = AsNumber();
-            return true;
-        }
-        return false;
-    }
-    public object AsNumber()
-    {
-        return _value!;
-    }
+  
 
     private static JsonDataValue Enumerate(IEnumerable elements)
     {
@@ -210,11 +194,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>
             JsonElement typed => ParseElement(typed),
             JsonDocument typed => ParseElement(typed.RootElement),
 
-            //DomainId[] typed => Array(typed),
-            //IEnumerable<JsonDataObject> typed => Array(typed),
-            //IReadOnlyDictionary<string, object?> typed => Object(typed),
-            //IEnumerable<KeyValuePair<string, object?>> typed => Array(typed),
-            //object[] typed => Array(typed),
             _ => (inputValue is IDictionary dic) ? Objectize(dic) : ((inputValue is IEnumerable list) ? Enumerate(list) : throw new ArgumentException($"Invalid or unsupported type ({inputValue?.GetType()})", nameof(inputValue))),
         };
     }

@@ -1,6 +1,6 @@
 ﻿namespace Toucan.Sdk.Contracts.JsonData;
 
-public static class JsonDataValueExtensions
+public static partial class JsonDataValueExtensions
 {
     public static bool IsNull(this JsonDataValue jsonDataValue)
     {

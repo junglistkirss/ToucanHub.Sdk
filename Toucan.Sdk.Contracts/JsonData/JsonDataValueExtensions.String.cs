@@ -3,7 +3,7 @@ using Toucan.Sdk.Contracts.Names;
 
 namespace Toucan.Sdk.Contracts.JsonData;
 
-public static class JsonDataValueStringExtensions
+public static partial class JsonDataValueExtensions
 {
 
     public static bool IsString(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out string? result)

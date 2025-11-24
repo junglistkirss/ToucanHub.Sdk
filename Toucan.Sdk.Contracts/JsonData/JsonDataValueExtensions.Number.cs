@@ -2,8 +2,28 @@
 
 namespace Toucan.Sdk.Contracts.JsonData;
 
-public static class JsonDataValueNumberExtensions
+public static partial class JsonDataValueExtensions
 {
+    
+    public static bool IsNumber<T>(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out T result)
+        where T : unmanaged
+    {
+        result = default;
+
+        if (jsonDataValue.Type == JsonDataValueType.Number && jsonDataValue.RawValue is T typedValue)
+        {
+            result = typedValue;
+            return true;
+        }
+        return false;
+    }
+    public static T AsNumber<T>(this JsonDataValue jsonDataValue)
+        where T : unmanaged
+    {
+        if (jsonDataValue.IsNumber(out T res))
+            return res;
+        throw new InvalidCastException();
+    }
     public static bool IsByte(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out byte result)
     {
         result = default;
