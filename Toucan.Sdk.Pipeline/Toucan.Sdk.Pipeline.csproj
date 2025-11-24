@@ -8,8 +8,7 @@
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Pipeline</PackageId>
     <Version>0.0.4</Version>
-    <Authors>Christian Bourbier</Authors>
-    <Company>Christian Bourbier</Company>
+    <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Pipeline</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>

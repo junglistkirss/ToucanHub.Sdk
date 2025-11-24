@@ -9,8 +9,7 @@
   <PropertyGroup>
     <PackageId>Toucan.Sdk.Contracts</PackageId>
     <Version>0.0.15</Version>
-    <Authors>Christian Bourbier</Authors>
-    <Company>Christian Bourbier</Company>
+    <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Contracts</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>

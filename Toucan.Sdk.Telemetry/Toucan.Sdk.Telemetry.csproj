@@ -9,8 +9,7 @@
 	<PropertyGroup>
     <PackageId>Toucan.Sdk.Telemetry</PackageId>
     <Version>0.0.3</Version>
-    <Authors>Christian Bourbier</Authors>
-    <Company>Christian Bourbier</Company>
+    <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Telemetry</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
