@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Toucan.Sdk.Pipeline.Internal;
 
 namespace Toucan.Sdk.Pipeline;
 

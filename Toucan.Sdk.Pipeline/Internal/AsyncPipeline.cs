@@ -1,6 +1,6 @@
 ﻿using Toucan.Sdk.Pipeline.Exceptions;
 
-namespace Toucan.Sdk.Pipeline;
+namespace Toucan.Sdk.Pipeline.Internal;
 
 internal sealed class AsyncPipeline<TContext>(IEnumerable<AsyncRichMiddlewareHandle<TContext>> middlewares) : IAsyncPipeline<TContext>
     where TContext : IPipelineContext
