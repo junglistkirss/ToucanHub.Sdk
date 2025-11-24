@@ -125,8 +125,10 @@ internal class SharedReactive<TServiceId>(ILogger<SharedReactive<TServiceId>> lo
             ChildServiceInfo<TServiceId> info = new(uid, ManagedServiceState.Started);
             subject.OnNext(info);
             logger.LogDebug("Service {msg} is running", info);
-        }else{
-        throw new InvalidOperationException($"Service with ID {uid} is already initialized");
+        }
+        else
+        {
+            throw new InvalidOperationException($"Service with ID {uid} is already initialized");
         }
     }
 

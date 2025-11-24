@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace Toucan.Sdk.Reactive.Tests;
 

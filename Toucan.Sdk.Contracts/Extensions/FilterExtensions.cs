@@ -33,7 +33,7 @@ public static class FilterExtensions
 
     public static bool IsValidEntityCriteria([NotNullWhen(true)] this IEntityCriteria? filter)
     {
-        if(filter is null)
+        if (filter is null)
             return false;
 
         return filter.Modifier.HasValue || filter.Creator.HasValue || filter.Created.IsValid() || filter.LastModified.IsValid();

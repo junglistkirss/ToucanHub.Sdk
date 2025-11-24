@@ -5,7 +5,7 @@ namespace Toucan.Sdk.Utils;
 public static partial class StringExtensions
 {
     public static bool IsNotNullTrimmed(this string? value, [NotNullWhen(true)] out string? output) => !value.IsNullTrimmed(out output);
-    
+
     public static bool IsNullTrimmed(this string? value, [NotNullWhen(false)] out string? output)
     {
         output = value.TrimOrNull();

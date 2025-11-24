@@ -87,7 +87,7 @@ public static class ObservableExtensions
     {
         return source.Where(x => x.HasValue).Select(x => x!.Value);
     }
-    
+
     public static IObservable<T> TimeoutWith<T>(
         this IObservable<T> source,
         TimeSpan timeout,
@@ -335,7 +335,7 @@ public static class ObservableExtensions
             .Where(x => x.Include)
             .Select(x => x.Item);
     }
-    public static IObservable<T> Pausable<T>(this IObservable<T> source, IObservable<bool> pauseSignal, bool paused =false)
+    public static IObservable<T> Pausable<T>(this IObservable<T> source, IObservable<bool> pauseSignal, bool paused = false)
     {
         return pauseSignal
             .StartWith(paused) // Commencer en mode non-pausé

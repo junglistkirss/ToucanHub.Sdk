@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-using System.Threading;
-using Toucan.Sdk.EventSourcing.Models;
+﻿using Toucan.Sdk.EventSourcing.Models;
 
 namespace Toucan.Sdk.EventSourcing.Services.Abstractions;
 

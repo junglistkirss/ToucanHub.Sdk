@@ -27,7 +27,7 @@ public static partial class JsonDataValueExtensions
             return str;
         throw new InvalidCastException();
     }
-    public static bool IsBinary(this JsonDataValue jsonDataValue,[NotNullWhen(true)] out byte[]? result)
+    public static bool IsBinary(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out byte[]? result)
     {
         result = null;
         if (jsonDataValue.RawValue is byte[] typed)
@@ -48,7 +48,7 @@ public static partial class JsonDataValueExtensions
             return str;
         throw new InvalidCastException();
     }
-    public static bool IsGuid(this JsonDataValue jsonDataValue,[NotNullWhen(true)] out Guid result)
+    public static bool IsGuid(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out Guid result)
     {
         result = Guid.Empty;
 

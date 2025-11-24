@@ -4,7 +4,7 @@ namespace Toucan.Sdk.Contracts.JsonData;
 
 public static partial class JsonDataValueExtensions
 {
-    
+
     public static bool IsNumber<T>(this JsonDataValue jsonDataValue, [NotNullWhen(true)] out T result)
         where T : unmanaged
     {

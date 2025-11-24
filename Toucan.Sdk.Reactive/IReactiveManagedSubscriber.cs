@@ -1,6 +1,6 @@
 namespace Toucan.Sdk.Reactive;
 
-public interface IReactiveManagedSubscriber<TServiceId> 
+public interface IReactiveManagedSubscriber<TServiceId>
     where TServiceId : struct
 {
     IObservable<T> Observe<T>(TServiceId serviceId);

@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Toucan.Sdk.Contracts.JsonData;
 using Toucan.Sdk.Contracts.Names;
-using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.Converters;
 
@@ -170,7 +169,8 @@ public sealed class JsonValueConverter : JsonConverter<JsonDataValue>
                         writer.WriteBase64StringValue(s);
                         break;
                     default: throw new InvalidOperationException("Type is invalid");
-                };
+                }
+                ;
                 break;
             case JsonDataValueType.Number:
                 switch (value.RawValue)
@@ -210,7 +210,8 @@ public sealed class JsonValueConverter : JsonConverter<JsonDataValue>
                         break;
                     default:
                         throw new InvalidOperationException("Type is invalid");
-                };
+                }
+                ;
                 break;
             default:
                 throw new NotSupportedException();

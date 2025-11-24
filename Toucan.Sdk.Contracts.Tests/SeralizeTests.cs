@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using Toucan.Sdk.Contracts.JsonData;
 using Toucan.Sdk.Contracts.Messages;
@@ -145,7 +144,7 @@ public class SeralizeTests
     [Fact]
     public void RawArraySerialization__Compare()
     {
-        JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, (int)1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
+        JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, 1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
 
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataArray deserialized = CommonJson.FastRead<JsonDataArray>(serialized);
@@ -202,7 +201,7 @@ public class SeralizeTests
     [Fact]
     public void RawArraySerialization__CompareFloatingPointNumerics()
     {
-        JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, (int)1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
+        JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, 1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
 
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataArray deserialized = CommonJson.FastRead<JsonDataArray>(serialized);
@@ -227,7 +226,7 @@ public class SeralizeTests
     [Fact]
     public void DictionarySerialization__Compare()
     {
-        JsonDataValue dat = JsonDataValue.Create((IDictionary)(new Dictionary<string, object?>() { { "key", 123 } }));
+        JsonDataValue dat = JsonDataValue.Create(new Dictionary<string, object?>() { { "key", 123 } });
 
         byte[] serialized = CommonJson.FastWrite(dat);
         JsonDataObject deserialized = CommonJson.FastRead<JsonDataObject>(serialized);
