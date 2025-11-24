@@ -9,7 +9,7 @@
   
   <PropertyGroup>
     <PackageId>ToucanHub.Sdk.Utils</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Utils</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>

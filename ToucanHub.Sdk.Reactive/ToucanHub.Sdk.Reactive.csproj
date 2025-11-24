@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>ToucanHub.Sdk.Reactive</PackageId>
-    <Version>0.0.17</Version>
+    <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Reactive</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
