@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Async", "Toucan.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Toucan.Sdk.Reactive.Tests", "Toucan.Sdk.Reactive.Tests\Toucan.Sdk.Reactive.Tests.csproj", "{2D684104-CE17-45A1-8372-77BC1A498E49}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +86,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{81C62ED6-AA62-44CB-ACF9-2EC559CFC8E1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{EF187826-90BA-4A1D-8969-08E0C620CD08} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{26949127-72CB-4F52-BAB2-1F4442E327B2} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{2D684104-CE17-45A1-8372-77BC1A498E49} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

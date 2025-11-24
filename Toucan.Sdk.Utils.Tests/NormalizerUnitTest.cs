@@ -10,7 +10,7 @@ public class NormalizerUnitTest
     [InlineData("@", "@")]
     public void RemoveDiacritics(string? test, string? expected)
     {
-        string? result = NameNormalizer.RemoveDiacritics(test);
+        string? result = Normalizer.RemoveDiacritics(test);
         Assert.Equal(expected, result);
     }
 
@@ -20,7 +20,7 @@ public class NormalizerUnitTest
     [InlineData("ùùù", "uuu")]
     public void NormalizeName(string? test, string? expected)
     {
-        string? result = NameNormalizer.NormalizeName(test);
+        string? result = Normalizer.NormalizeName(test);
         Assert.Equal(expected, result);
     }
 }

@@ -36,7 +36,7 @@ public struct Versioning : IEquatable<Versioning>, IComparable<Versioning>
         byte[] raw = BitConverter.GetBytes(Value);
 
         if (BitConverter.IsLittleEndian)
-            raw = raw.Reverse().ToArray();
+            raw = [.. raw.Reverse()];
 
         return BitConverter.ToString(raw).Replace("-", "");
     }

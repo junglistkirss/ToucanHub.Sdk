@@ -1,11 +1,8 @@
 ﻿using System.Collections;
 using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Toucan.Sdk.Contracts.Extensions;
 using Toucan.Sdk.Contracts.Names;
-using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.JsonData;
 
@@ -51,8 +48,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>
     public JsonDataValue(Guid value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(DomainId value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(Slug value) : this(value, JsonDataValueType.String) { }
-
-  
 
     private static JsonDataValue Enumerate(IEnumerable elements)
     {
@@ -285,7 +280,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>
 
     public override int GetHashCode()
     {
-        return _value?.GetHashCode() * 31 ?? 0;
+        return _value is null ? 0 : HashCode.Combine(_value);
     }
 
     public static bool operator ==(JsonDataValue left, JsonDataValue right)

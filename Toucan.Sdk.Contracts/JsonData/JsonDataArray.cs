@@ -3,7 +3,7 @@ using System.Globalization;
 using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.JsonData;
-public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IReadOnlyList<JsonDataValue>
+public sealed class JsonDataArray : IEquatable<JsonDataArray>, IReadOnlyList<JsonDataValue>
 {
     private readonly JsonDataValue[] _values;
 
@@ -49,5 +49,24 @@ public sealed record class JsonDataArray : IEquatable<JsonDataArray>, IReadOnlyL
     IEnumerator IEnumerable.GetEnumerator()
     {
         return _values.GetEnumerator();
+    }
+
+    public bool Equals(JsonDataArray? other)
+    {
+        if (other is null)
+            return false;
+        return _values.SequenceEqual(other._values);
+    }
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as JsonDataArray);
+    }
+
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+        foreach (JsonDataValue value in _values)
+            hash.Add(value);
+        return hash.ToHashCode();
     }
 }

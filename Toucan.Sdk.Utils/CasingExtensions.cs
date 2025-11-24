@@ -16,7 +16,7 @@ public static class CasingExtensions
         int num = 0;
         foreach (char c2 in value)
         {
-            if (c2 is '-' or '_' || char.IsWhiteSpace(c))
+            if (c2 is '-' or '_' || char.IsWhiteSpace(c2))
             {
                 if (c != 0)
                     _ = stringBuilder.Append(char.ToUpperInvariant(c));

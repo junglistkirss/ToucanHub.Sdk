@@ -44,8 +44,7 @@ public abstract class EventStore<TStreamKey, TEvent, TProjection, TStoredStream,
 
                 Versioning next = actualVersion;
                 next++;
-                TStoredEvent[] inputEvents = events
-                    .Select(x => serializer.Serialize(key, next++, x)).ToArray();
+                TStoredEvent[] inputEvents = [.. events.Select(x => serializer.Serialize(key, next++, x))];
 
                 return await eventLogService.AppendToStream(key, [.. inputEvents], ct);
             }

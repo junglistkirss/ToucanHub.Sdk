@@ -2,9 +2,9 @@
 
 namespace Toucan.Sdk.Contracts.JsonData;
 
-public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>, IEquatable<JsonDataObject>
+public sealed class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>, IEquatable<JsonDataObject>
 {
-    private readonly IDictionary<string, JsonDataValue> _values;
+    private readonly Dictionary<string, JsonDataValue> _values;
 
     public ICollection<string> Keys => _values.Keys;
 
@@ -22,11 +22,9 @@ public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonData
     {
         _values = new Dictionary<string, JsonDataValue>(StringComparer.OrdinalIgnoreCase);
     }
-
     public JsonDataObject(int capacity)
     {
         _values = new Dictionary<string, JsonDataValue>(capacity, StringComparer.OrdinalIgnoreCase);
-
     }
 
     public JsonDataObject(IEnumerable<KeyValuePair<string, JsonDataValue>> source)
@@ -62,5 +60,28 @@ public sealed record class JsonDataObject : IReadOnlyDictionary<string, JsonData
     IEnumerator IEnumerable.GetEnumerator()
     {
         return _values.GetEnumerator();
+    }
+
+    public bool Equals(JsonDataObject? other)
+    {
+        if (other is null)
+            return false;
+        return _values.SequenceEqual(other._values);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as JsonDataObject);
+    }
+
+    public override int GetHashCode()
+    {
+        HashCode hash = new();
+        foreach ((string key, JsonDataValue value) in _values.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            hash.Add(key, StringComparer.OrdinalIgnoreCase);
+            hash.Add(value);
+        }
+        return hash.ToHashCode();
     }
 }

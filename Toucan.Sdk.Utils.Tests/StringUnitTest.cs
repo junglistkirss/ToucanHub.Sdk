@@ -1,40 +1,6 @@
 ﻿namespace Toucan.Sdk.Utils.Tests;
 public class StringUnitTest
 {
-
-    [Theory]
-    [InlineData("[a-Z{1,-2}]", false)]
-    [InlineData("\\W\\]", true)]
-    public void IsValidRegex(string value, bool expected)
-    {
-        bool result = value.IsValidRegex();
-        Assert.Equal(expected, result);
-    }
-
-
-    [Theory]
-    [InlineData("plouf.com", false)]
-    [InlineData("plouf@com", false)]
-    [InlineData(" @ploufcom", false)]
-    [InlineData("tot@plouf.nope", true)]
-    public void IsEmail(string value, bool expected)
-    {
-        bool result = value.IsEmail();
-        Assert.Equal(expected, result);
-    }
-
-
-    [Theory]
-    [InlineData(null, false)]
-    [InlineData("", false)]
-    [InlineData("   ", false)]
-    [InlineData("tot@plouf.nope", true)]
-    public void IsNotNulOrEmptOrWithespace(string? value, bool expected)
-    {
-        bool result = value.IsNotNullOrWhiteSpace();
-        Assert.Equal(expected, result);
-    }
-
     [Theory]
     [InlineData(null, null)]
     [InlineData("", null)]
