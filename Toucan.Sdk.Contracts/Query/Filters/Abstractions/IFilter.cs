@@ -1,4 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Wrapper;
+﻿using Toucan.Sdk.Contracts.Surrogates;
 
 namespace Toucan.Sdk.Contracts.Query.Filters.Abstractions;
 

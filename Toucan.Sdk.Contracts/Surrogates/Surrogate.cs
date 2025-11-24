@@ -1,6 +1,4 @@
-﻿using Toucan.Sdk.Contracts.Wrapper;
-
-namespace Toucan.Sdk.Contracts.Extensions;
+﻿namespace Toucan.Sdk.Contracts.Surrogates;
 
 public static class Surrogate
 {
