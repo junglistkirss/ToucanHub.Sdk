@@ -9,7 +9,7 @@ using Toucan.Sdk.Contracts.Wrapper;
 
 namespace Toucan.Sdk.Contracts.JsonData;
 
-public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object?>
+public readonly struct JsonDataValue : IEquatable<JsonDataValue>
 {
 
     public static readonly JsonDataValue Null = new(null, JsonDataValueType.Null);
@@ -54,23 +54,21 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public JsonDataValue(DomainId value) : this(value, JsonDataValueType.String) { }
     public JsonDataValue(Slug value) : this(value, JsonDataValueType.String) { }
 
+    public bool IsNumber([NotNullWhen(true)] out object? result)
+    {
+        result = null;
 
-
-    //public bool IsNumber([NotNullWhen(true)] out object? result)
-    //{
-    //    result = null;
-
-    //    if (Type == JsonDataValueType.Number)
-    //    {
-    //        result = AsNumber();
-    //        return true;
-    //    }
-    //    return false;
-    //}
-    //public object AsNumber()
-    //{
-    //    return _value!;
-    //}
+        if (Type == JsonDataValueType.Number)
+        {
+            result = AsNumber();
+            return true;
+        }
+        return false;
+    }
+    public object AsNumber()
+    {
+        return _value!;
+    }
 
     private static JsonDataValue Enumerate(IEnumerable elements)
     {
@@ -98,7 +96,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
     private static JsonDataValue ParseNode(JsonNode? element)
     {
-        if(element is null)
+        if (element is null)
             return Null;
 
         switch (element.GetValueKind())
@@ -223,8 +221,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     public static JsonDataValue EmptyObject() => new JsonDataObject();
     public static JsonDataValue EmptyArray() => new JsonDataArray();
     public static JsonDataValue Array<T>(IEnumerable<T> values) => new JsonDataArray(values?.OfType<object?>().Select(Create));
-
-    //public static Raw Array<T>(params T?[] values) => CreateArray(new RawArray(values?.OfType<object?>().Select(Create)));
     public static JsonDataValue Object<T>(IReadOnlyDictionary<string, T>? values)
     {
         Dictionary<string, JsonDataValue> source = new(values?.Count ?? 0);
@@ -239,7 +235,7 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
 
         return new JsonDataObject(source);
     }
-    public string ToJsonFragment()
+    internal string ToJsonFragment()
     {
         return _value switch
         {
@@ -312,28 +308,6 @@ public readonly struct JsonDataValue : IEquatable<JsonDataValue>, ITarget<object
     {
         return _value?.GetHashCode() * 31 ?? 0;
     }
-
-    public object? ToTarget()
-    {
-        return Type switch
-        {
-            JsonDataValueType.Null => null,
-            JsonDataValueType.Object => this.AsObject().ToSource(),
-            JsonDataValueType.Array => this.AsArray().ToSource(),
-            _ => _value,
-        };
-    }
-
-    //public JsonDataValue Clone()
-    //{
-    //    return Type switch
-    //    {
-    //        JsonDataValueType.Null => Null,
-    //        JsonDataValueType.Object => Create(AsObject().ToSource()),
-    //        JsonDataValueType.Array => Create(AsArray().ToSource()),
-    //        _ => Create(_value!),
-    //    };
-    //}
 
     public static bool operator ==(JsonDataValue left, JsonDataValue right)
     {
