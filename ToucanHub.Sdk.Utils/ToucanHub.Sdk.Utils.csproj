@@ -12,15 +12,14 @@
     <Version>0.0.1</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Utils</PackageDescription>
-    <RepositoryUrl>https://github.com/junglistkirss/Toucan.Sdk.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/junglistkirss/ToucanHub.Sdk.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <None Include="readme.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+    <None Include="../LICENSE" Pack="true" PackagePath="\" Link="LICENSE" />
+    <None Include="readme.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
