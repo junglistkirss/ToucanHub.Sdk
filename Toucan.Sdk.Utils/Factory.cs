@@ -13,17 +13,5 @@ public static class Factory
 
     public delegate T KeyResolver<T, TKey>(IServiceProvider serviceProvider, TKey key);
     public delegate T KeyProvider<T, TKey>(TKey key);
-
-    //private sealed class ProvideFactory<T> : Factory<T>
-    //{
-    //    private readonly Provide<T> provide;
-
-    //    public ProvideFactory(Provide<T> provide)
-    //    {
-    //        this.provide = provide;
-    //    }
-    //    public T Create() => provide();
-    //}
-
 }
 

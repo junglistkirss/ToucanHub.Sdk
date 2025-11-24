@@ -2,7 +2,7 @@
 
 public static class EnumExtensions
 {
-    public static bool IsEnumValue<TEnum>(this TEnum value) where TEnum : struct
+    public static bool IsEnumValue<TEnum>(this object value) where TEnum : struct
     {
         try
         {
@@ -13,6 +13,7 @@ public static class EnumExtensions
             return false;
         }
     }
+
     public static bool TryConvert<TEnum>(this string? src, out TEnum enumValue, TEnum defaultValue = default, bool ignoreCase = true)
         where TEnum : struct
     {
@@ -34,6 +35,7 @@ public static class EnumExtensions
 
     public static TEnum Convert<TEnum>(this string? src, TEnum defaultValue = default, bool ignoreCase = true)
         where TEnum : struct => !string.IsNullOrWhiteSpace(src) && Enum.TryParse(src, ignoreCase, out TEnum enumValue) ? enumValue : defaultValue;
+    
     public static TEnum? ConvertOrNull<TEnum>(this string? src, bool ignoreCase = true)
         where TEnum : struct => !string.IsNullOrWhiteSpace(src) && Enum.TryParse(src, ignoreCase, out TEnum enumValue) ? enumValue : null;
 

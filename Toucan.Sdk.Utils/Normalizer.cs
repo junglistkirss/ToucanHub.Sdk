@@ -2,14 +2,14 @@
 
 namespace Toucan.Sdk.Utils;
 
-public static class NameNormalizer
+public static class Normalizer
 {
     public static string? RemoveDiacritics(string? text)
     {
         if (text == null)
             return null;
 
-        string normalizedString = text.Normalize(NormalizationForm.FormD);
+        ReadOnlySpan<char> normalizedString = text.Normalize(NormalizationForm.FormD).AsSpan();
         StringBuilder stringBuilder = new();
 
         foreach (char c in normalizedString)

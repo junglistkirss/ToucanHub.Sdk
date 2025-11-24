@@ -13,11 +13,13 @@ public static class Hasher
     }
 
     public static string Randomize(object value) => Randomize(value.ToString()!);
+
     public static string Randomize(string value)
     {
         byte[] entropy = [.. Random(), .. SHA512.HashData(Encoding.UTF8.GetBytes(value))];
         return entropy.ToBytesHashed(SHA256.HashData);
     }
+
     private static byte[] Random()
     {
         byte[] randomNumber = new byte[64];
@@ -26,12 +28,14 @@ public static class Hasher
         return randomNumber;
     }
 
-
     public static string Simple() => Guid.NewGuid().ToString().ToSHA256();
 
     public static string ToSHA1(this string value) => value.ToHashed(SHA1.HashData);
+
     public static string ToSHA256(this string value) => value.ToHashed(SHA256.HashData);
+
     public static string ToSHA512(this string value) => value.ToHashed(SHA512.HashData);
+
     public static string ToMD5(this string value) => value.ToHashed(MD5.HashData);
 
     private delegate byte[] HashProducer(byte[] data);

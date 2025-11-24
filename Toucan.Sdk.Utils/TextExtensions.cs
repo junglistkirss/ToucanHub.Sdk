@@ -1,7 +1,6 @@
 ﻿namespace Toucan.Sdk.Utils;
 public static class TextExtensions
 {
-
     public static class WordBoundary
     {
         private static readonly HashSet<char> NewLines =
@@ -118,6 +117,7 @@ public static class TextExtensions
             return false;
         }
     }
+    
     public static int WordCount(this string value) => value?.AsSpan().WordCount() ?? 0;
 
     public static int WordCount(this ReadOnlySpan<char> value)
@@ -135,6 +135,7 @@ public static class TextExtensions
 
         return num;
     }
+    
     public static int CharacterCount(this string value, bool withPunctuation = false) => value.AsSpan().CharacterCount(withPunctuation);
 
     public static int CharacterCount(this ReadOnlySpan<char> value, bool withPunctuation = false)

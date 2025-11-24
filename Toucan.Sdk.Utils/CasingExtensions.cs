@@ -16,7 +16,7 @@ public static class CasingExtensions
         int num = 0;
         foreach (char c2 in value)
         {
-            if (c2 == '-' || c2 == '_' || c2 == ' ')
+            if (c2 is '-' or '_' || char.IsWhiteSpace(c))
             {
                 if (c != 0)
                     _ = stringBuilder.Append(char.ToUpperInvariant(c));
@@ -42,7 +42,7 @@ public static class CasingExtensions
             num++;
         }
 
-        if (c != 0)
+        if (c is not '\0')
             _ = stringBuilder.Append(char.ToUpperInvariant(c));
 
         return stringBuilder.ToString();
@@ -59,7 +59,7 @@ public static class CasingExtensions
         int num = 0;
         foreach (char c in value)
         {
-            if (c == '-' || c == '_' || c == ' ')
+            if (c is '-' or '_' || char.IsWhiteSpace(c))
             {
                 num = 0;
                 continue;
@@ -93,7 +93,7 @@ public static class CasingExtensions
         int num = 0;
         foreach (char c2 in value)
         {
-            if (c2 == '-' || c2 == '_' || c2 == ' ')
+            if (c2 is '-' or '_' || char.IsWhiteSpace(c2))
             {
                 if (c != 0)
                 {
@@ -132,7 +132,7 @@ public static class CasingExtensions
             num++;
         }
 
-        if (c != 0)
+        if (c is not '\0')
         {
             if (stringBuilder.Length > 0)
                 _ = stringBuilder.Append(char.ToUpperInvariant(c));
