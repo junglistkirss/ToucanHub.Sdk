@@ -1,0 +1,30 @@
+name: Public Nuget Publish
+
+on:
+  workflow_dispatch: # Allow running the workflow manually from the GitHub UI
+  # push:
+  #   branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore ./ToucanHub.Sdk.slnx
+    - name: Build
+      run: dotnet build ./ToucanHub.Sdk.slnx --configuration Release --no-restore
+    - name: Tests
+      run: dotnet test ./ToucanHub.Sdk.slnx --verbosity normal
+    - name: NuGet
+      run: dotnet pack ./ToucanHub.Sdk.slnx --configuration Release -o ./nupkgs
+    - name: Push to GitHub package registry
+      run: dotnet nuget push ./nupkgs/*.nupkg --api-key "${{ secrets.PUBLIC_NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
