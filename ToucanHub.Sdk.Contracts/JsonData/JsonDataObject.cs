@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.Contracts;
 
 namespace ToucanHub.Sdk.Contracts.JsonData;
 
@@ -16,7 +17,14 @@ public sealed class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>,
 
     IEnumerable<JsonDataValue> IReadOnlyDictionary<string, JsonDataValue>.Values => _values.Values;
 
-    public JsonDataValue this[string key] { get => _values[key]; }
+    public JsonDataValue this[string key]
+    {
+        get
+        {
+            ArgumentException.ThrowIfNullOrEmpty(key);
+            return _values[key];
+        }
+    }
 
     public JsonDataObject()
     {
@@ -36,10 +44,10 @@ public sealed class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>,
 
     public override string ToString() => ToJsonFragment();
 
-    public bool TryGetValue(string pathSegment, [MaybeNullWhen(false)] out JsonDataValue result)
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out JsonDataValue result)
     {
         result = JsonDataValue.Null;
-        if (!string.IsNullOrEmpty(pathSegment) && _values.TryGetValue(pathSegment, out JsonDataValue value))
+        if (!string.IsNullOrEmpty(key) && _values.TryGetValue(key, out JsonDataValue value))
         {
             result = value;
             return true;
@@ -83,5 +91,24 @@ public sealed class JsonDataObject : IReadOnlyDictionary<string, JsonDataValue>,
             hash.Add(value);
         }
         return hash.ToHashCode();
+    }
+
+    /// <summary>
+    /// This method will create a new <see cref="JsonDataObject"/>
+    /// <para>
+    /// Properties of <paramref name="other"/> will replace exiting properties in current <see cref="JsonDataObject"/> instance
+    /// </para>
+    /// </summary>
+    /// <param name="other"></param>
+    /// <returns></returns>
+    [Pure]
+    public JsonDataObject Merge(IEnumerable<KeyValuePair<string, JsonDataValue>> other)
+    {
+        Dictionary<string, JsonDataValue> copy = new(other);
+        foreach ((string key, JsonDataValue value) in _values)
+        {
+            copy.TryAdd(key, value);
+        }
+        return new(copy);
     }
 }
