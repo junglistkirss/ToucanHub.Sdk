@@ -62,7 +62,7 @@ public static class JsonDataSerializer
     public static void SdkContractsSerializerOptions(JsonSerializerOptions options)
     {
         // not resolvers added here, options.TypeInfoResolver must be not null later !!
-        options.TypeInfoResolver = options.TypeInfoResolver ?? new DefaultJsonTypeInfoResolver();
+        options.TypeInfoResolver ??= new DefaultJsonTypeInfoResolver();
 
         options.Converters.Add(new DomainIdConverter());
         options.Converters.Add(new SlugConverter());

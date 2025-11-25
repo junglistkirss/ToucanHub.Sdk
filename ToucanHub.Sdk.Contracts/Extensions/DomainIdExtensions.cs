@@ -2,6 +2,7 @@
 
 namespace ToucanHub.Sdk.Contracts.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static partial class DomainIdExtensions
 {
     public static DomainId[] ToDomainIds(this Slug[] names) => [.. names.Select(DomainId.FromSlug)];

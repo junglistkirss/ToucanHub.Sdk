@@ -6,8 +6,8 @@ namespace ToucanHub.Sdk.Pipeline.Tests;
 
 public class PipelineTest : IDisposable
 {
-    private static MiddlewareActionHandle<CounterContext> MiddlewareAction(string i) => ctx => ctx.Counter.Add(i);
-    private static AsyncMiddlewareActionHandle<CounterContext> MiddlewareAsyncAction(string i) => ctx => { ctx.Counter.Add(i); return ValueTask.CompletedTask; };
+    private static MiddlewareTermination<CounterContext> MiddlewareAction(string i) => ctx => ctx.Counter.Add(i);
+    private static AsyncMiddlewareTermination<CounterContext> MiddlewareAsyncAction(string i) => ctx => { ctx.Counter.Add(i); return ValueTask.CompletedTask; };
 
     private static MiddlewareHandle<CounterContext> MiddlewareHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); next(); };
     private static AsyncMiddlewareHandle<CounterContext> MiddlewareAsyncHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); return next(); };
@@ -29,12 +29,10 @@ public class PipelineTest : IDisposable
     {
         middlewareSimple = Substitute.For<RichMiddlewareHandle<CounterContext>>();
         asyncMiddlewareSimple = Substitute.For<AsyncRichMiddlewareHandle<CounterContext>>();
-
-        asyncMiddlewareSimple(default!, default!)
+        asyncMiddlewareSimple(default!, Arg.Any<RichNextAsyncDelegate<CounterContext>>())
            .ReturnsForAnyArgs(ci => ci.ArgAt<RichNextAsyncDelegate<CounterContext>>(1).Invoke(ci.ArgAt<CounterContext>(0)));
-
         middlewareSimple
-            .WhenForAnyArgs(x => x(default!, default!))
+            .WhenForAnyArgs(x => x(default!, Arg.Any<RichNextDelegate<CounterContext>>()))
             .Do(ci => ci.ArgAt<RichNextDelegate<CounterContext>>(1).Invoke(ci.ArgAt<CounterContext>(0)));
     }
 
@@ -84,19 +82,80 @@ public class PipelineTest : IDisposable
     }
 
     [Fact]
+    public void Build__TestSimpleValues()
+    {
+        Dependency dep = new();
+
+        PipelineBuilder<CounterContext> builder = PipelineBuilder<CounterContext>
+            .CreateBuilder()
+            .Then((ctx, next) =>
+            {
+                ctx.TryAdd("MyValue", 42);
+                next();
+            })
+            .Then((ctx, next) =>
+            {
+                ctx.TryAdd("MyValue", 99999);
+                next();
+            })
+            .Then((ctx, next) =>
+            {
+                ctx.TryAdd("MyValue2", 21);
+                next();
+            })
+            .Then((ctx, next) =>
+            {
+                ctx.TryAdd("MyValue", dep);
+                ctx.TryAdd("OtherValue", dep);
+                next();
+            });
+        IServiceCollection descriptors = new ServiceCollection().UsePipelines();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        {
+            using IServiceScope scope = serviceProvider.CreateScope();
+            CounterContext ctx = new();
+            IPipeline<CounterContext> pipe = builder.Build(scope.ServiceProvider);
+            pipe.Execute(ctx);
+            Assert.True(ctx.TryGetValue<int>("MyValue", out int intValue));
+            Assert.Equal(42, intValue);
+            Assert.True(ctx.TryGetValueNotNull<Dependency>("OtherValue", out Dependency? depValue));
+            Assert.Same(dep, depValue);
+            Assert.Equal([42, 21], ctx.GetValues<int>().OrderByDescending(x => x));
+            Assert.Equal([new KeyValuePair<string, int>("MyValue2", 21), new KeyValuePair<string, int>("MyValue", 42)], ctx.GetKeyValuePairs<int>().OrderBy(x => x.Value));
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        {
+            CounterContext ctx = new();
+            using IServiceScope scope = serviceProvider.CreateScope();
+            IPipeline<CounterContext> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContext>>();
+            pipe.Execute(ctx);
+            Assert.True(ctx.TryGetValue<int>("MyValue", out int intValue));
+            Assert.Equal(42, intValue);
+            Assert.True(ctx.TryGetValueNotNull<Dependency>("OtherValue", out Dependency? depValue));
+            Assert.Same(dep, depValue);
+            Assert.Equal([42, 21], ctx.GetValues<int>().OrderByDescending(x => x));
+            Assert.Equal([new KeyValuePair<string, int>("MyValue2", 21), new KeyValuePair<string, int>("MyValue", 42)], ctx.GetKeyValuePairs<int>().OrderBy(x => x.Value));
+        }
+    }
+
+    [Fact]
     public async Task Build__TestAsyncSimple__Completed()
     {
         AsyncPipelineBuilder<CounterContext> builder = AsyncPipelineBuilder<CounterContext>
             .CreateBuilder()
-            .Then(PassMiddleware.HandleAsync(PassMiddleware.DefaultAction))
-           .Then(RichMiddlewareAsyncFactory("RichAsyncFactory"))
-           .Then(MiddlewareAsyncFactory("AsyncFactory"))
+            .ThenAsync(PassMiddleware.HandleAsync(PassMiddleware.DefaultAction))
+           .ThenAsync(RichMiddlewareAsyncFactory("RichAsyncFactory"))
+           .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
-           .Then(MiddlewareAsyncHandle("AsyncHandle"))
+           .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
            .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
            .Then(asyncMiddlewareSimple)
            .Terminate(MiddlewareAction("Action"))
-           .Terminate(MiddlewareAsyncAction("AsyncAction"));
+           .TerminateAsync(MiddlewareAsyncAction("AsyncAction"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
@@ -127,14 +186,14 @@ public class PipelineTest : IDisposable
 
         AsyncPipelineBuilder<CounterContext> builder = AsyncPipelineBuilder<CounterContext>
             .CreateBuilder()
-            .Then(PassMiddleware.HandleAsync(PassMiddleware.DefaultAction))
-           .Then(RichMiddlewareAsyncFactory("RichAsyncFactory"))
-           .Then(MiddlewareAsyncFactory("AsyncFactory"))
+            .ThenAsync(PassMiddleware.HandleAsync(PassMiddleware.DefaultAction))
+           .ThenAsync(RichMiddlewareAsyncFactory("RichAsyncFactory"))
+           .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
-           .Then(MiddlewareAsyncHandle("AsyncHandle"))
+           .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
            .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
            .Then(asyncMiddlewareSimple)
-           .Terminate(MiddlewareAsyncAction("AsyncAction"))
+           .TerminateAsync(MiddlewareAsyncAction("AsyncAction"))
            .Terminate(MiddlewareAction("Action"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
@@ -165,13 +224,11 @@ public class PipelineTest : IDisposable
     {
         AsyncPipelineBuilder<CounterContext> builder = AsyncPipelineBuilder<CounterContext>
             .CreateBuilder()
-#pragma warning disable CS1998 // Cette m�thode async n'a pas d'op�rateur 'await' et elle s'ex�cutera de fa�on synchrone
-           .Terminate(async (ctx) =>
+            .TerminateAsync(new AsyncMiddlewareTermination<CounterContext>((ctx) =>
            {
                throw new NotImplementedException();
-           })
-#pragma warning restore CS1998 // Cette m�thode async n'a pas d'op�rateur 'await' et elle s'ex�cutera de fa�on synchrone
-           .Then((ctx, next) => next(ctx));
+           }))
+            .Then((ctx, next) => next(ctx));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();

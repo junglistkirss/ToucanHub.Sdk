@@ -6,7 +6,7 @@ namespace ToucanHub.Sdk.Contracts.Names;
 
 public readonly record struct NamedId(DomainId Id, Slug Name)
 {
-    public static readonly NamedId Empty = new NamedId(DomainId.Empty, Slug.Empty);
+    public static readonly NamedId Empty = new(DomainId.Empty, Slug.Empty);
 
 
     public static implicit operator DomainId(NamedId id) => id.Id;

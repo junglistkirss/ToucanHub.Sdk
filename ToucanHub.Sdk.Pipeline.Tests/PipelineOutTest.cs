@@ -1,28 +1,54 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using NSubstitute.ClearExtensions;
+using System.Threading.Tasks;
+using ToucanHub.Sdk.Pipeline.Exceptions;
 
 namespace ToucanHub.Sdk.Pipeline.Tests;
 
+internal sealed class Dependency
+{
+    public string Call()
+    {
+        return nameof(Dependency);
+    }
+    public ValueTask<string> CallAsync()
+    {
+        return ValueTask.FromResult(nameof(Dependency));
+    }
+}
+
 public class PipelineOutTest : IDisposable
 {
-    private static MiddlewareActionHandle<CounterContextWithOutput> MiddlewareAction(string i, string result) => ctx =>
+    private static MiddlewareTermination<CounterContextWithOutput> MiddlewareAction(string i, string result) => ctx =>
     {
         ctx.Counter.Add(i);
         ctx.Output = result;
     };
-    private static AsyncMiddlewareActionHandle<CounterContextWithOutput> MiddlewareAsyncAction(string i, string result) => ctx =>
+    private static AsyncMiddlewareTermination<CounterContextWithOutput> MiddlewareAsyncAction(string i, string result) => async ctx =>
     {
         ctx.Counter.Add(i);
         ctx.Output = result;
-        return ValueTask.CompletedTask;
+        await ValueTask.CompletedTask;
     };
 
     private static MiddlewareHandle<CounterContextWithOutput> MiddlewareHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); next(); };
-    private static AsyncMiddlewareHandle<CounterContextWithOutput> MiddlewareAsyncHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); return next(); };
+    private static AsyncMiddlewareHandle<CounterContextWithOutput> MiddlewareAsyncHandle(string i) => async (ctx, next) =>
+    {
+        ctx.Counter.Add(i);
+        await next();
+    };
 
-    private static RichMiddlewareHandle<CounterContextWithOutput> RichMiddlewareHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); next(ctx); };
-    private static AsyncRichMiddlewareHandle<CounterContextWithOutput> RichMiddlewareAsyncHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); return next(ctx); };
+    private static RichMiddlewareHandle<CounterContextWithOutput> RichMiddlewareHandle(string i) => (ctx, next) =>
+    {
+        ctx.Counter.Add(i);
+        next(ctx);
+    };
+    private static AsyncRichMiddlewareHandle<CounterContextWithOutput> RichMiddlewareAsyncHandle(string i) => async (ctx, next) =>
+    {
+        ctx.Counter.Add(i);
+        await next(ctx);
+    };
 
     private static MiddlewareFactory<MiddlewareHandle<CounterContextWithOutput>> MiddlewareFactory(string i) => _ => PassMiddlewareWithOutput.Handle(ctx => ctx.Counter.Add(i));
     private static MiddlewareFactory<AsyncMiddlewareHandle<CounterContextWithOutput>> MiddlewareAsyncFactory(string i) => _ => PassMiddlewareWithOutput.HandleAsync(ctx => ctx.Counter.Add(i));
@@ -34,15 +60,14 @@ public class PipelineOutTest : IDisposable
 
     private readonly RichMiddlewareHandle<CounterContextWithOutput> middlewareSimple;
     private readonly AsyncRichMiddlewareHandle<CounterContextWithOutput> asyncMiddlewareSimple;
+
     public PipelineOutTest()
     {
         middlewareSimple = Substitute.For<RichMiddlewareHandle<CounterContextWithOutput>>();
         asyncMiddlewareSimple = Substitute.For<AsyncRichMiddlewareHandle<CounterContextWithOutput>>();
-
-        asyncMiddlewareSimple(default!, default(RichNextAsyncDelegate<CounterContextWithOutput>)!)
+        asyncMiddlewareSimple(default!, Arg.Any<RichNextAsyncDelegate<CounterContextWithOutput>>())
            .ReturnsForAnyArgs(ci => ci.ArgAt<RichNextAsyncDelegate<CounterContextWithOutput>>(1).Invoke(ci.ArgAt<CounterContextWithOutput>(0)));
-
-        middlewareSimple.WhenForAnyArgs(x => x(default!, default(RichNextDelegate<CounterContextWithOutput>)!))
+        middlewareSimple.WhenForAnyArgs(x => x(default!, Arg.Any<RichNextDelegate<CounterContextWithOutput>>()))
             .Do(ci => ci.ArgAt<RichNextDelegate<CounterContextWithOutput>>(1).Invoke(ci.ArgAt<CounterContextWithOutput>(0)));
     }
 
@@ -70,8 +95,8 @@ public class PipelineOutTest : IDisposable
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
 
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
-            using IServiceScope scope = serviceProvider.CreateScope();
             CounterContextWithOutput ctx = new();
             IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
             pipe.Execute(ctx);
@@ -82,9 +107,9 @@ public class PipelineOutTest : IDisposable
 
         middlewareSimple.ClearReceivedCalls();
 
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
             CounterContextWithOutput ctx = new();
-            using IServiceScope scope = serviceProvider.CreateScope();
             IPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContextWithOutput>>();
             pipe.Execute(ctx);
             Assert.Equal("output", ctx.Output);
@@ -94,26 +119,250 @@ public class PipelineOutTest : IDisposable
     }
 
     [Fact]
+    public async Task Build__TestDependencyAsync()
+    {
+        AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .ThenAsync<Dependency>(dep => async (ctx, next) =>
+            {
+                string result = await dep.CallAsync();
+                ctx.Counter.Add(result);
+                await next();
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IAsyncPipeline<CounterContextWithOutput>>();
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+    }
+
+    [Fact]
+    public async Task Build__RichTestDependencyAsync()
+    {
+        AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .ThenAsync<Dependency>(dep => async (ctx, next) =>
+            {
+                string result = await dep.CallAsync();
+                ctx.Counter.Add(result);
+                await next(ctx);
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IAsyncPipeline<CounterContextWithOutput>>();
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+    }
+
+    [Fact]
+    public async Task Build__TestDependencyTerminateAsync()
+    {
+        AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .TerminateAsync<Dependency>(dep => async (ctx) =>
+            {
+                ctx.Output = await dep.CallAsync();
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("Dependency", ctx.Output);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IAsyncPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IAsyncPipeline<CounterContextWithOutput>>();
+            await pipe.ExecuteAsync(ctx);
+            Assert.Equal("Dependency", ctx.Output);
+        }
+    }
+
+    [Fact]
+    public void Build__TestDependency()
+    {
+        PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .Then<Dependency>(dep => (ctx, next) =>
+            {
+                ctx.Counter.Add(dep.Call());
+                next();
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            pipe.Execute(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContextWithOutput>>();
+            pipe.Execute(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+    }
+
+    [Fact]
+    public void Build__RichTestDependency()
+    {
+        PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .Then<Dependency>(dep => (ctx, next) =>
+            {
+                ctx.Counter.Add(dep.Call());
+                next(ctx);
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            pipe.Execute(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContextWithOutput>>();
+            pipe.Execute(ctx);
+            Assert.Equal("output", ctx.Output);
+            Assert.Equal(["Dependency", "Action"], ctx.Counter);
+        }
+    }
+
+    [Fact]
+    public void Build__TestDependencyTerminate()
+    {
+        PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .Terminate<Dependency>(dep => (ctx) =>
+            {
+                ctx.Output = dep.Call();
+            })
+           .Terminate(MiddlewareAction("Action", "output"));
+        IServiceCollection descriptors = new ServiceCollection()
+            .UsePipelines()
+            .AddSingleton<Dependency>();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+            pipe.Execute(ctx);
+            Assert.Equal("Dependency", ctx.Output);
+        }
+
+        middlewareSimple.ClearReceivedCalls();
+
+        using (IServiceScope scope = serviceProvider.CreateScope())
+        {
+            CounterContextWithOutput ctx = new();
+            IPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContextWithOutput>>();
+            pipe.Execute(ctx);
+            Assert.Equal("Dependency", ctx.Output);
+        }
+    }
+
+    [Fact]
     public async Task Build__TestAsyncSimple__Completed()
     {
         AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-            .Then(PassMiddlewareWithOutput.HandleAsync(PassMiddlewareWithOutput.DefaultAction))
-           .Then(RichMiddlewareAsyncFactory("RichAsyncFactory"))
-           .Then(MiddlewareAsyncFactory("AsyncFactory"))
+            .ThenAsync(PassMiddlewareWithOutput.HandleAsync(PassMiddlewareWithOutput.DefaultAction))
+           .ThenAsync(RichMiddlewareAsyncFactory("RichAsyncFactory"))
+           .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
-           .Then(MiddlewareAsyncHandle("AsyncHandle"))
+           .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
            .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
            .Then(asyncMiddlewareSimple)
            .Terminate(MiddlewareAction("Action", "output1"))
-           .Terminate(MiddlewareAsyncAction("AsyncAction", "output2"));
+           .TerminateAsync(MiddlewareAsyncAction("AsyncAction", "output2"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
 
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
             CounterContextWithOutput ctx = new();
-            using IServiceScope scope = serviceProvider.CreateScope();
             IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
             await pipe.ExecuteAsync(ctx);
             Assert.Equal("output1", ctx.Output);
@@ -122,9 +371,9 @@ public class PipelineOutTest : IDisposable
         }
 
         asyncMiddlewareSimple.ClearReceivedCalls();
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
             CounterContextWithOutput ctx = new();
-            using IServiceScope scope = serviceProvider.CreateScope();
             IAsyncPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IAsyncPipeline<CounterContextWithOutput>>();
             await pipe.ExecuteAsync(ctx);
             Assert.Equal("output1", ctx.Output);
@@ -139,22 +388,22 @@ public class PipelineOutTest : IDisposable
 
         AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-            .Then(PassMiddlewareWithOutput.HandleAsync(PassMiddlewareWithOutput.DefaultAction))
-           .Then(RichMiddlewareAsyncFactory("RichAsyncFactory"))
-           .Then(MiddlewareAsyncFactory("AsyncFactory"))
+            .ThenAsync(PassMiddlewareWithOutput.HandleAsync(PassMiddlewareWithOutput.DefaultAction))
+           .ThenAsync(RichMiddlewareAsyncFactory("RichAsyncFactory"))
+           .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
-           .Then(MiddlewareAsyncHandle("AsyncHandle"))
+           .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
            .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
            .Then(asyncMiddlewareSimple)
-           .Terminate(MiddlewareAsyncAction("AsyncAction", "output1"))
+           .TerminateAsync(MiddlewareAsyncAction("AsyncAction", "output1"))
            .Terminate(MiddlewareAction("Action", "output2"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
 
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
             CounterContextWithOutput ctx = new();
-            using IServiceScope scope = serviceProvider.CreateScope();
             IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
             await pipe.ExecuteAsync(ctx);
             Assert.Equal("output1", ctx.Output);
@@ -163,9 +412,9 @@ public class PipelineOutTest : IDisposable
         }
 
         asyncMiddlewareSimple.ClearReceivedCalls();
+        using (IServiceScope scope = serviceProvider.CreateScope())
         {
             CounterContextWithOutput ctx = new();
-            using IServiceScope scope = serviceProvider.CreateScope();
             IAsyncPipeline<CounterContextWithOutput> pipe = scope.ServiceProvider.GetRequiredService<IAsyncPipeline<CounterContextWithOutput>>();
             await pipe.ExecuteAsync(ctx);
             Assert.Equal("output1", ctx.Output);
@@ -175,26 +424,80 @@ public class PipelineOutTest : IDisposable
     }
 
     [Fact]
+    public void Build__TestSimple__Throws()
+    {
+        PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+           .Terminate(new MiddlewareTermination<CounterContextWithOutput>((ctx) =>
+           {
+               throw new NotImplementedException();
+           }))
+           .Then((ctx, next) => next(ctx));
+        IServiceCollection descriptors = new ServiceCollection().UsePipelines();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+        FlowException ex = Assert.Throws<FlowException>(() => pipe.Execute(new CounterContextWithOutput()));
+        Assert.IsType<NotImplementedException>(ex.InnerException);
+    }
+
+    [Fact]
     public async Task Build__TestAsyncSimple__Throws()
     {
         AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-#pragma warning disable CS1998 // Cette m�thode async n'a pas d'op�rateur 'await' et elle s'ex�cutera de fa�on synchrone
-           .Terminate(async (ctx) =>
+           .TerminateAsync(new AsyncMiddlewareTermination<CounterContextWithOutput>((ctx) =>
            {
                throw new NotImplementedException();
-           })
-#pragma warning restore CS1998 // Cette m�thode async n'a pas d'op�rateur 'await' et elle s'ex�cutera de fa�on synchrone
+           }))
            .Then((ctx, next) => next(ctx));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
         IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
-        await Assert.ThrowsAnyAsync<Exception>(async () => await pipe.ExecuteAsync(new CounterContextWithOutput()));
-
+        FlowException ex = await Assert.ThrowsAsync<FlowException>(async () => await pipe.ExecuteAsync(new CounterContextWithOutput()));
+        Assert.IsType<NotImplementedException>(ex.InnerException);
     }
 
+    [Fact]
+    public void Build__TestSimple__ThrowsDoubleCall()
+    {
+        PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .Then((ctx, next) =>
+            {
+                next();
+                next();
+            });
+        IServiceCollection descriptors = new ServiceCollection().UsePipelines();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+        FlowException ex = Assert.Throws<FlowException>(() => pipe.Execute(new CounterContextWithOutput()));
+        Assert.Null(ex.InnerException);
+    }
+
+    [Fact]
+    public async Task Build__TestAsyncSimple__ThrowsDoubleCall()
+    {
+        AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
+            .CreateBuilder()
+            .ThenAsync(async (ctx, next) =>
+            {
+                await next();
+                await next();
+            });
+        IServiceCollection descriptors = new ServiceCollection().UsePipelines();
+        builder.Register(descriptors);
+        IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
+        using IServiceScope scope = serviceProvider.CreateScope();
+        IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
+        FlowException ex = await Assert.ThrowsAsync<FlowException>(async () => await pipe.ExecuteAsync(new CounterContextWithOutput()));
+        Assert.Null(ex.InnerException);
+    }
     [Fact]
     public async Task Build__TestAsyncSimple__NoReturn()
     {
@@ -206,7 +509,7 @@ public class PipelineOutTest : IDisposable
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
         using IServiceScope scope = serviceProvider.CreateScope();
         IAsyncPipeline<CounterContextWithOutput> pipe = builder.Build(scope.ServiceProvider);
-        var ctx = new CounterContextWithOutput();
+        CounterContextWithOutput ctx = new();
         await pipe.ExecuteAsync(ctx);
         Assert.Null(ctx.Output);
     }

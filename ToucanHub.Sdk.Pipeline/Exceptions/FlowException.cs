@@ -1,6 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ToucanHub.Sdk.Pipeline.Exceptions;
 
 [Serializable]
+[ExcludeFromCodeCoverage]
 public sealed class FlowException : Exception
 {
     public FlowException()

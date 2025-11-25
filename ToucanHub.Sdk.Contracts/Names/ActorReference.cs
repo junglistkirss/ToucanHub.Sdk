@@ -15,7 +15,7 @@ public readonly struct ActorReference : IEquatable<ActorReference>, IComparable<
 
     public static readonly ActorReference Anonymous = new();
 
-    private static readonly char[] TrimChars = { ' ', ':' };
+    private static readonly char[] TrimChars = [' ', ':'];
 
     public ActorType Type { get; init; }
 
@@ -28,7 +28,7 @@ public readonly struct ActorReference : IEquatable<ActorReference>, IComparable<
                 return null;
             int spaceIndex = Identifier.IndexOf(' ');
             if (spaceIndex > 0)
-                return Identifier.Substring(0, spaceIndex);
+                return Identifier[..spaceIndex];
             return Identifier;
         }
     }

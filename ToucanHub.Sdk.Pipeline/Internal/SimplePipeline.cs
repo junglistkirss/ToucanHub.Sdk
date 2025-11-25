@@ -10,10 +10,10 @@ internal sealed class SimplePipeline<TContext>(IEnumerable<RichMiddlewareHandle<
     public void Execute(TContext context)
     {
         int index = -1;
+        bool nextCalled = false;
 
         void Next(TContext ctx)
         {
-            bool nextCalled = false;
             int currentIndex = ++index;
 
             if (nextCalled)
@@ -22,15 +22,26 @@ internal sealed class SimplePipeline<TContext>(IEnumerable<RichMiddlewareHandle<
             nextCalled = true;
 
             if (currentIndex < _middlewares.Length)
-                try
+            {
+                nextCalled = false;
+                _middlewares[currentIndex](ctx, (ctx) =>
                 {
-                    _middlewares[currentIndex](ctx, Next);
-                }
-                catch (Exception ex)
-                {
-                    throw new FlowException("Error occurs during pipeline execution, see inner exception for details", ex);
-                }
+                    Next(ctx);
+                });
+            }
         }
-        Next(context);
+
+        try
+        {
+            Next(context);
+        }
+        catch (FlowException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw new FlowException("Error occurs during pipeline execution, see inner exception for details", ex);
+        }
     }
 }

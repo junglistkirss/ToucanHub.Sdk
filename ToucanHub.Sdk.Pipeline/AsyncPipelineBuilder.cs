@@ -32,13 +32,13 @@ public sealed class AsyncPipelineBuilder<TContext>
     //     descriptors.Add(FromFactory((s) => handle));
     //     return this;
     // }
-    public AsyncPipelineBuilder<TContext> Terminate(AsyncMiddlewareActionHandle<TContext> handle)
+    public AsyncPipelineBuilder<TContext> TerminateAsync(AsyncMiddlewareTermination<TContext> handle)
     {
         descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(ctx))));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> Terminate(MiddlewareActionHandle<TContext> handle)
+    public AsyncPipelineBuilder<TContext> Terminate(MiddlewareTermination<TContext> handle)
     {
         descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) =>
         {
@@ -47,34 +47,39 @@ public sealed class AsyncPipelineBuilder<TContext>
         })));
         return this;
     }
-    public AsyncPipelineBuilder<TContext> Then(AsyncMiddlewareHandle<TContext> handle)
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(AsyncMiddlewareHandle<TContext> handle)
     {
         descriptors.Add(FromFactory(_ => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(ctx, () => next(ctx)))));
         return this;
     }
-    public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<AsyncMiddlewareHandle<TContext>> step)
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncMiddlewareHandle<TContext>> step)
     {
         descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => step(s)(ctx, () => next(ctx)))));
         return this;
     }
-    public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<AsyncRichMiddlewareHandle<TContext>> step)
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncRichMiddlewareHandle<TContext>> step)
     {
         descriptors.Add(FromFactory((s) => step(s)));
         return this;
     }
+
     public AsyncPipelineBuilder<TContext> Then(AsyncRichMiddlewareHandle<TContext> handle)
     {
         descriptors.Add(FromFactory((s) => handle));
         return this;
     }
-    public AsyncPipelineBuilder<TContext> Then<T>(Func<T, AsyncRichMiddlewareHandle<TContext>> handle)
+
+    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncRichMiddlewareHandle<TContext>> handle)
        where T : class
     {
         descriptors.Add(Create(handle));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> Then<T>(Func<T, AsyncMiddlewareHandle<TContext>> handle)
+    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncMiddlewareHandle<TContext>> handle)
        where T : class
     {
         descriptors.Add(Create<T>(
@@ -84,8 +89,7 @@ public sealed class AsyncPipelineBuilder<TContext>
         return this;
     }
 
-
-    public AsyncPipelineBuilder<TContext> Then<T>(Func<T, AsyncMiddlewareActionHandle<TContext>> handle)
+    public AsyncPipelineBuilder<TContext> TerminateAsync<T>(Func<T, AsyncMiddlewareTermination<TContext>> handle)
        where T : class
     {
         descriptors.Add(Create<T>(

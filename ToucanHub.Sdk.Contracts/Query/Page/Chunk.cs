@@ -3,7 +3,7 @@
 public readonly record struct Chunk<TSort>
         where TSort : notnull
 {
-    public static readonly Chunk<TSort> Default = new Chunk<TSort>()
+    public static readonly Chunk<TSort> Default = new()
     {
         Pagination = Pagination.Default,
         SortOptions = []
