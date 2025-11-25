@@ -2,9 +2,6 @@ name: .NET Build and test
 
 on:
   workflow_call: # Allow to call this workflow from another
-    secrets:
-      token:
-        required: true
         
 jobs:
   build:
@@ -12,15 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
         dotnet-version: 9.0.x
     
-    - name: Add dependencies source
-      run: dotnet nuget add source --username junglistkirss --password ${{ secrets.token }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/junglistkirss/index.json"
-        
     - name: Restore dependencies
       run: dotnet restore
 
