@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="ToucanHub.Sdk.Contracts.Tests/ToucanHub.Sdk.Contracts.Tests.csproj" />
+    <Project Path="ToucanHub.Sdk.Pipeline.Tests/ToucanHub.Sdk.Pipeline.Tests.csproj" />
+    <Project Path="ToucanHub.Sdk.Reactive.Tests/ToucanHub.Sdk.Reactive.Tests.csproj" />
+    <Project Path="ToucanHub.Sdk.Utils.Tests/ToucanHub.Sdk.Utils.Tests.csproj" />
+  </Folder>
+  <Project Path="ToucanHub.Sdk.Async/ToucanHub.Sdk.Async.csproj" />
+  <Project Path="ToucanHub.Sdk.Contracts/ToucanHub.Sdk.Contracts.csproj" />
+  <Project Path="ToucanHub.Sdk.EventSourcing/ToucanHub.Sdk.EventSourcing.csproj" />
+  <Project Path="ToucanHub.Sdk.Infrastructure/ToucanHub.Sdk.Infrastructure.csproj" />
+  <Project Path="ToucanHub.Sdk.Pipeline/ToucanHub.Sdk.Pipeline.csproj" />
+  <Project Path="ToucanHub.Sdk.Reactive/ToucanHub.Sdk.Reactive.csproj" />
+  <Project Path="ToucanHub.Sdk.Telemetry/ToucanHub.Sdk.Telemetry.csproj" />
+  <Project Path="ToucanHub.Sdk.Utils/ToucanHub.Sdk.Utils.csproj" />
+</Solution>
