@@ -3,10 +3,10 @@
 public static class ResultHelper
 {
     public static bool IsNullOrError<TResult>(this TResult? serviceResult)
-         where TResult : Result => !serviceResult.IsSuccess();
+         where TResult : ResultBase => !serviceResult.IsSuccess();
 
     public static bool IsNullOrError<TResult>(this TResult? serviceResult, out string[] errors)
-         where TResult : Result
+         where TResult : ResultBase
     {
         if (serviceResult.IsNullOrError())
         {
@@ -17,14 +17,13 @@ public static class ResultHelper
         return false;
     }
 
-    public static ValueTask<TResult> Async<TResult>(this TResult serviceResult) => ValueTask.FromResult(serviceResult);
     public static bool IsSuccess<TResult>(this TResult? serviceResult)
-        where TResult : Result => serviceResult?.Status != ResultStatus.Error;
+        where TResult : ResultBase => serviceResult?.Status != ResultStatus.Error;
 
     public static string[] GetMessagesOrDefault<TResult>(this TResult? serviceResult, params string[] defaultMessages)
-        where TResult : Result => serviceResult?.Messages ?? defaultMessages;
+        where TResult : ResultBase => serviceResult?.Messages ?? defaultMessages;
     public static string[] GetMessagesOrDefault<TResult>(this TResult? serviceResult, string? defaultMessage)
-        where TResult : Result => serviceResult?.Messages ?? (string.IsNullOrWhiteSpace(defaultMessage) ? [] : [defaultMessage]);
+        where TResult : ResultBase => serviceResult?.Messages ?? (string.IsNullOrWhiteSpace(defaultMessage) ? [] : [defaultMessage]);
     public static bool IsSuccessWith<T>(this Result<T>? serviceResult, Func<T?, bool> checker, [NotNullWhen(true)] out T? model)
     {
         if ((serviceResult?.IsSuccess() ?? false) && checker(serviceResult.Value))

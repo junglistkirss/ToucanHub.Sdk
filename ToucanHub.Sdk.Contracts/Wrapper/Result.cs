@@ -2,7 +2,7 @@
 
 namespace ToucanHub.Sdk.Contracts.Wrapper;
 
-public record class Result<T> : Result
+public record class Result<T> : ResultBase
 {
     public new static Result<T> Success(params string[] messages) => Success(default, messages);
     public static Result<T> Success(T? model, params string[] messages) => new()

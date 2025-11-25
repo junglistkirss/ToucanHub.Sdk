@@ -33,10 +33,10 @@ public readonly struct ActorReference : IEquatable<ActorReference>, IComparable<
         }
     }
 
-    public bool IsMachine => Type == ActorType.Machine;
-    public bool IsClient => Type == ActorType.Client;
-    public bool IsUser => Type == ActorType.User;
-    public bool IsAnonymous => Type == ActorType.Anonymous;
+    public bool IsMachine => Type is ActorType.Machine;
+    public bool IsClient => Type is ActorType.Client;
+    public bool IsUser => Type is ActorType.User;
+    public bool IsAnonymous => Type is ActorType.Anonymous;
     public bool IsEmpty => string.IsNullOrWhiteSpace(Identifier);
 
     public ActorReference()

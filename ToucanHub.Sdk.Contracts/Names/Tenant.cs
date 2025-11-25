@@ -21,9 +21,9 @@ public readonly struct Tenant : IEquatable<Tenant>, IComparable<Tenant>, IParsab
 
     public string Identifier { get; init; } = string.Empty;
 
-    public bool IsInternal => Type == TenantType.Internal;
-    public bool IsExternal => Type == TenantType.External;
-    public bool IsUnspecified => Type == TenantType.Unspecified;
+    public bool IsInternal => Type is TenantType.Internal;
+    public bool IsExternal => Type is TenantType.External;
+    public bool IsUnspecified => Type is TenantType.Unspecified;
     public bool IsEmpty => string.IsNullOrWhiteSpace(Identifier);
 
     public Tenant()

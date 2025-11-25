@@ -7,17 +7,18 @@ namespace ToucanHub.Sdk.Contracts.Names;
 public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, IParsable<DomainId>
 {
     private static readonly string EmptyRawValueId = Guid.Empty.ToString("N");
-    public static readonly DomainId Empty = new(EmptyRawValueId!);
+    public static readonly DomainId Empty = new(EmptyRawValueId);
     public static readonly char IdSeparator = '~';
 
     public string Id => Parts != null ? string.Join(IdSeparator, Parts) : EmptyRawValueId;
     public string[] Parts { get; }
     private DomainId(string id)
     {
-        if (string.IsNullOrWhiteSpace(id))
-            throw new ArgumentException($"'{nameof(id)}' ne peut pas avoir une valeur null ou être un espace blanc.", nameof(id));
-
-        Parts = id.Trim().ToLowerInvariant().Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries);
+        ArgumentNullException.ThrowIfNull(id);
+        id = id.Trim();
+        ArgumentException.ThrowIfNullOrEmpty(id);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(id.Length, 1024, nameof(id));
+        Parts = id.ToLowerInvariant().Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries);
     }
 
     public static bool TryParse(string? input, [NotNullWhen(true)] out DomainId validDomainId)
@@ -97,7 +98,6 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
 
     public static bool operator !=(DomainId lhs, DomainId rhs) => !lhs.Equals(rhs);
 
-    // public static implicit operator DomainId(Slug input) => new(input);
 
 
     //public static implicit operator Guid(DomainId input)
@@ -107,6 +107,8 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
 
 
     public static implicit operator string(DomainId input) => input.ToString();
+
+    public static implicit operator DomainId(Slug input) => FromSlug(input);
 
     public static implicit operator DomainId(Guid input) => FromGuid(input);
 
@@ -137,10 +139,10 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
     {
         var next = Empty;
         foreach (var id in ids)
-            next = Combine2(next, id);
+            next = CombineInternal(next, id);
         return next;
     }
-    private static DomainId Combine2(DomainId id1, DomainId id2)
+    private static DomainId CombineInternal(DomainId id1, DomainId id2)
     {
         if (id1 == Empty)
             return id2;

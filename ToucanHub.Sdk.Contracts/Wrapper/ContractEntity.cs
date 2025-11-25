@@ -12,13 +12,13 @@ public abstract record class ContractEntity : IObjectEntity<DomainId, ActorRefer
     public ActorReference? LastModifiedBy { get; init; }
     public DateTimeOffset? LastModified { get; init; }
 
-    public bool Equals(IEntity<DomainId>? other)
-    {
-        if (other != null)
-            return Id!.Equals(other!.Id);
+    //public bool Equals(IEntity<DomainId>? other)
+    //{
+    //    if (other != null)
+    //        return Id!.Equals(other!.Id);
 
-        return false;
-    }
+    //    return false;
+    //}
 }
 
 public abstract record class ContractEntity<T> : ContractEntity

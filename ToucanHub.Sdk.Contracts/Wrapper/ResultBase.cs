@@ -2,22 +2,22 @@
 
 namespace ToucanHub.Sdk.Contracts.Wrapper;
 
-public record class Result
+public record class ResultBase
 {
 
-    public static readonly Result EmptySuccess = Success();
+    public static readonly ResultBase EmptySuccess = Success();
 
-    public static Result Success(params string[] messages) => new()
+    public static ResultBase Success(params string[] messages) => new()
     {
         Status = ResultStatus.Success,
         Messages = [.. messages.Where(x => !string.IsNullOrWhiteSpace(x))]
     };
-    public static Result Error(params string[] messages) => new()
+    public static ResultBase Error(params string[] messages) => new()
     {
         Status = ResultStatus.Error,
         Messages = [.. messages.Where(x => !string.IsNullOrWhiteSpace(x))]
     };
-    public static Result Warn(params string[] messages) => new()
+    public static ResultBase Warn(params string[] messages) => new()
     {
         Status = ResultStatus.Warn,
         Messages = [.. messages.Where(x => !string.IsNullOrWhiteSpace(x))]

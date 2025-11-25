@@ -62,9 +62,9 @@ public static class TextExtensions
 
             return true;
         }
-        private static bool IsNewLine(char c) => NewLines.IndexOf(c) >= 0;
-        private static bool IsMidLetter(char c) => MidLetter.IndexOf(c) >= 0;
-        private static bool IsMidNumeric(char c) => MidNumeric.IndexOf(c) >= 0 || char.GetUnicodeCategory(c) == UnicodeCategory.MathSymbol;
+        private static bool IsNewLine(char c) => NewLines.Contains(c);
+        private static bool IsMidLetter(char c) => MidLetter.Contains(c);
+        private static bool IsMidNumeric(char c) => MidNumeric.Contains(c) || char.GetUnicodeCategory(c) == UnicodeCategory.MathSymbol;
 
         private static bool IsNumberOrLetter(char c) => char.IsDigit(c) || IsNonCJKLetter(c);
 

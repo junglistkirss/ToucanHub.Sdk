@@ -2,7 +2,7 @@
 
 namespace ToucanHub.Sdk.Contracts.Names;
 
-[DebuggerDisplay("{Id,nq} = {Name,nq}")]
+[DebuggerDisplay("{Id,nq}={Name,nq}")]
 
 public readonly record struct NamedId(DomainId Id, Slug Name)
 {

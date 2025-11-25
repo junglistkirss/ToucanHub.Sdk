@@ -2,7 +2,7 @@ using ToucanHub.Sdk.Contracts.Query;
 
 namespace ToucanHub.Sdk.Contracts.Wrapper;
 
-public record class Results<T> : Result
+public record class Results<T> : ResultBase
 {
     public static new Results<T> Error(params string[] messages) => new()
     {
