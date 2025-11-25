@@ -2,11 +2,11 @@
 
 public static class FileSizeExtensions
 {
-    private static readonly string[] Extensions = ["B", "kB", "MB", "GB"];
+    private static readonly string[] Extensions = ["B", "kB", "MB", "GB", "TB", "PB", "EB"];
 
-    public static string ToReadableSize(this int value) => ((long)value).ToReadableSize();
+    public static string ToReadableSize(this int value, int precision = 0) => ((long)value).ToReadableSize(precision);
 
-    public static string ToReadableSize(this long value)
+    public static string ToReadableSize(this long value, int precision = 0)
     {
         if (value < 0)
             return string.Empty;
@@ -25,6 +25,6 @@ public static class FileSizeExtensions
         if (u >= Extensions.Length - 1)
             u = Extensions.Length - 1;
 
-        return $"{Math.Round(d, 1).ToString(CultureInfo.InvariantCulture)} {Extensions[u]}";
+        return $"{Math.Round(d, precision).ToString(CultureInfo.InvariantCulture)} {Extensions[u]}";
     }
 }

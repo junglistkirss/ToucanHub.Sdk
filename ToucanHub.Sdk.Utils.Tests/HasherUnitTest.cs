@@ -22,6 +22,19 @@ public class HasherUnitTest
     [InlineData("AbC", "abc")]
     [InlineData("abC", "abc")]
     [InlineData("abc", " abc")]
+    public void ToSha1(string value1, string value2)
+    {
+        string res1 = value1.ToSHA1();
+        string res2 = value2.ToSHA1();
+        Assert.NotEqual(res1, res2);
+    }
+
+    [Theory]
+    [InlineData("ABC", "abc")]
+    [InlineData("Abc", "abc")]
+    [InlineData("AbC", "abc")]
+    [InlineData("abC", "abc")]
+    [InlineData("abc", " abc")]
     public void ToSha512(string value1, string value2)
     {
         string res1 = value1.ToSHA512();

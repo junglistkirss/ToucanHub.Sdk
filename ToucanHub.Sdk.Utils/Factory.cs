@@ -1,5 +1,8 @@
-﻿namespace ToucanHub.Sdk.Utils;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace ToucanHub.Sdk.Utils;
+
+[ExcludeFromCodeCoverage]
 public static class Factory
 {
     public static Factory<T> Createrovider<T>(Provider<T> provide) => (_) => provide();

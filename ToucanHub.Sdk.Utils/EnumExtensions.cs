@@ -1,5 +1,8 @@
-﻿namespace ToucanHub.Sdk.Utils;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace ToucanHub.Sdk.Utils;
+
+[ExcludeFromCodeCoverage]
 public static class EnumExtensions
 {
     public static bool IsEnumValue<TEnum>(this object value) where TEnum : struct

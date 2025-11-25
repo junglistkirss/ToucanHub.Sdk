@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ToucanHub.Sdk.Utils;
@@ -7,13 +8,16 @@ public static class Hasher
 {
     public static string Hash(this Guid uid) => uid.ToString().ToSHA256();
 
+    [ExcludeFromCodeCoverage]
     public static string New()
     {
         return Random().ToBytesHashed(SHA256.HashData);
     }
 
+    [ExcludeFromCodeCoverage]
     public static string Randomize(object value) => Randomize(value.ToString()!);
 
+    [ExcludeFromCodeCoverage]
     public static string Randomize(string value)
     {
         byte[] entropy = [.. Random(), .. SHA512.HashData(Encoding.UTF8.GetBytes(value))];

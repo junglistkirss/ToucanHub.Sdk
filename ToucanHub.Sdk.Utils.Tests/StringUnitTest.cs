@@ -13,6 +13,20 @@ public class StringUnitTest
     }
 
     [Theory]
+    [InlineData(null, false, null)]
+    [InlineData("", false, null)]
+    [InlineData("  ", false, null)]
+    [InlineData(" aa  ", true, "aa")]
+    public void NullTrimmed(string? value, bool expected, string? result)
+    {
+        Assert.Equal(expected, value.IsNotNullTrimmed(out string? notNullTrimmed));
+        Assert.Equal(result, notNullTrimmed);
+
+        Assert.Equal(!expected, value.IsNullTrimmed(out string? nullTrimmed));
+        Assert.Equal(result, nullTrimmed);
+    }
+
+    [Theory]
     [InlineData(null, "resp", "resp")]
     [InlineData("00", "resp", "00")]
     [InlineData("  00   ", "resp", "00")]

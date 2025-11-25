@@ -100,6 +100,11 @@ public class PipelineTest : IDisposable
             })
             .Then((ctx, next) =>
             {
+                ctx.TryAdd("NullValue", null);
+                next();
+            })
+            .Then((ctx, next) =>
+            {
                 ctx.TryAdd("MyValue2", 21);
                 next();
             })
@@ -118,9 +123,12 @@ public class PipelineTest : IDisposable
             CounterContext ctx = new();
             IPipeline<CounterContext> pipe = builder.Build(scope.ServiceProvider);
             pipe.Execute(ctx);
-            Assert.True(ctx.TryGetValue<int>("MyValue", out int intValue));
+            Assert.False(ctx.TryGetValueNotNull<object>("NullValue", out _));
+            Assert.False(ctx.TryGetValue<int>("MissingValue", out _));
+            Assert.False(ctx.TryGetValue<bool>("MyValue", out _));
+            Assert.True(ctx.TryGetValue("MyValue", out int intValue));
             Assert.Equal(42, intValue);
-            Assert.True(ctx.TryGetValueNotNull<Dependency>("OtherValue", out Dependency? depValue));
+            Assert.True(ctx.TryGetValueNotNull("OtherValue", out Dependency? depValue));
             Assert.Same(dep, depValue);
             Assert.Equal([42, 21], ctx.GetValues<int>().OrderByDescending(x => x));
             Assert.Equal([new KeyValuePair<string, int>("MyValue2", 21), new KeyValuePair<string, int>("MyValue", 42)], ctx.GetKeyValuePairs<int>().OrderBy(x => x.Value));
@@ -133,9 +141,12 @@ public class PipelineTest : IDisposable
             using IServiceScope scope = serviceProvider.CreateScope();
             IPipeline<CounterContext> pipe = scope.ServiceProvider.GetRequiredService<IPipeline<CounterContext>>();
             pipe.Execute(ctx);
-            Assert.True(ctx.TryGetValue<int>("MyValue", out int intValue));
+            Assert.False(ctx.TryGetValueNotNull<object>("NullValue", out _));
+            Assert.False(ctx.TryGetValue<int>("MissingValue", out _));
+            Assert.False(ctx.TryGetValue<bool>("MyValue", out _));
+            Assert.True(ctx.TryGetValue("MyValue", out int intValue));
             Assert.Equal(42, intValue);
-            Assert.True(ctx.TryGetValueNotNull<Dependency>("OtherValue", out Dependency? depValue));
+            Assert.True(ctx.TryGetValueNotNull("OtherValue", out Dependency? depValue));
             Assert.Same(dep, depValue);
             Assert.Equal([42, 21], ctx.GetValues<int>().OrderByDescending(x => x));
             Assert.Equal([new KeyValuePair<string, int>("MyValue2", 21), new KeyValuePair<string, int>("MyValue", 42)], ctx.GetKeyValuePairs<int>().OrderBy(x => x.Value));

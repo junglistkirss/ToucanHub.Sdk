@@ -8,6 +8,7 @@ public class NormalizerUnitTest
     [InlineData("1é", "1e")]
     [InlineData("à", "a")]
     [InlineData("@", "@")]
+    [InlineData(null, null)]
     public void RemoveDiacritics(string? test, string? expected)
     {
         string? result = Normalizer.RemoveDiacritics(test);
