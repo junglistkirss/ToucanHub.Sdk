@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
     - name: Setup .NET
       uses: actions/setup-dotnet@v5
       with:
@@ -28,7 +28,7 @@ jobs:
       run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Merge Coverage Reports
-      uses: danielpalme/ReportGenerator-GitHub-Action@5.4.16
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.0
       with:
         reports: ./coverage/**/coverage.cobertura.xml
         targetdir: ./coveragereport
