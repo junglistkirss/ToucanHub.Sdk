@@ -1,16 +1,34 @@
+﻿using System.Diagnostics;
+
 namespace ToucanHub.Sdk.Contracts.Security;
 
-public readonly record struct Privilege<T, TRight>
-    where T : struct
+[DebuggerDisplay("{Value,nq}")]
+public readonly struct Privilege(string value)
 {
-    public Privilege(T obj, TRight rights, PrivilegeSet<T, TRight>? children = null)
+    public string Value { get; } = value;
+    public override bool Equals([NotNullWhen(true)] object? obj)
     {
-        Obj = obj;
-        Rights = rights;
-        Children = children ?? PrivilegeSet<T, TRight>.Empty;
+        if(obj is Privilege privilege) 
+            return string.Equals(Value, privilege.Value, StringComparison.OrdinalIgnoreCase);
+        return false;
     }
-    public T Obj { get; }
-    public TRight Rights { get; }
-    public PrivilegeSet<T, TRight> Children { get; }
 
+    public override string ToString()
+    {
+        return Value;
+    }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Value);
+    }
+
+    public static bool operator ==(Privilege left, Privilege right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Privilege left, Privilege right)
+    {
+        return !(left == right);
+    }
 }

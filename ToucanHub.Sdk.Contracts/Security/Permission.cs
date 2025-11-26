@@ -3,15 +3,6 @@ using System.Diagnostics;
 
 namespace ToucanHub.Sdk.Contracts.Security;
 
-public readonly struct BitMask
-{
-    private readonly int _mask;
-
-    public BitMask(int mask) => _mask = mask;
-
-    public bool Intersects(BitMask other) => (_mask & other._mask) != 0;
-}
-
 [DebuggerDisplay("{Id,nq}")]
 public readonly struct Permission : IComparable<Permission>, IEquatable<Permission>
 {
@@ -24,16 +15,15 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
     public static implicit operator Permission(string input) => new(input);
 
     public string Id { get; }
-    public ImmutableArray<string> Operations { get; }
-    public bool HasOperations => Operations.Length > 0;
-    public string Scope => string.Join(Part.SeparatorMain, path.Select(x => x.ToString()));
-
-    private readonly Part[] path;
+    public readonly Part[] Path { get; }
+    public readonly Privilege[] Operations { get; }
+    public readonly bool HasOperations => Operations.Length > 0;
+    public readonly string Scope => string.Join(Part.SeparatorMain, Path.Select(x => x.ToString()));
 
     public Permission(string raw)
     {
         string scope = raw;
-        string[] ops = [];
+        Privilege[] ops = [];
 
         int sep = raw.LastIndexOf(Operation);
         if (sep >= 0)
@@ -43,20 +33,20 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
 
             ops = [..opsRaw
                 .Split(OperationSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(o => o.ToLowerInvariant())
+                .Select(x => new Privilege(x))
                 .Distinct()
                 ];
         }
         Id = raw;
-        path = Part.ParsePath(scope) ?? [];
-        Operations = [.. ops];
+        Path = Part.ParsePath(scope) ?? [];
+        Operations = ops;
     }
 
     public bool Allows(Permission requested)
     {
         // 1️⃣ Vérification du scope
-        Part[] lhs = this.path;
-        Part[] rhs = requested.path;
+        Part[] lhs = Path;
+        Part[] rhs = requested.Path;
 
         int lhsLen = lhs.Length;
         int rhsLen = rhs.Length;
@@ -77,12 +67,12 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
         if (!HasOperations)
             return false;
 
-        bool AnyOperation = Operations.Length == 1 && Operations[0] == Any;
+        bool AnyOperation = Operations.Length == 1 && Operations[0].Value == Any;
         if (AnyOperation)
             return true;
 
-        var ops = Operations;
-        var reqOps = requested.Operations;
+        Privilege[] ops = Operations;
+        Privilege[] reqOps = requested.Operations;
         for (int i = 0; i < reqOps.Length; i++)
         {
             if (!ops.Contains(reqOps[i]))
@@ -95,8 +85,8 @@ public readonly struct Permission : IComparable<Permission>, IEquatable<Permissi
     public bool Includes(Permission requested)
     {
         // 1️⃣ Comparaison sur le scope
-        Part[] lhs = this.path;
-        Part[] rhs = requested.path;
+        Part[] lhs = this.Path;
+        Part[] rhs = requested.Path;
 
         int common = Math.Min(lhs.Length, rhs.Length);
 

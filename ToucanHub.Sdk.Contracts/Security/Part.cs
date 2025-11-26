@@ -1,6 +1,6 @@
 ﻿namespace ToucanHub.Sdk.Contracts.Security;
 
-internal readonly struct Part(ReadOnlyMemory<char>[]? alternatives, bool exclusion)
+public readonly struct Part(ReadOnlyMemory<char>[]? alternatives, bool exclusion)
 {
     internal const char SeparatorMain = '.';
     private const char SeparatorAlternative = '|';
@@ -9,16 +9,17 @@ internal readonly struct Part(ReadOnlyMemory<char>[]? alternatives, bool exclusi
 
     public override string ToString()
     {
-        if (Alternatives is null || Alternatives.Length == 0)
+        if (alternatives is null) 
             return $"{CharAny}";
-        string inline = string.Join(SeparatorAlternative, Alternatives.Select(x => x.ToString()));
-        if (Exclusion) return $"{CharExclude}{inline}";
+        string inline = string.Join(SeparatorAlternative, alternatives.Select(x => x.ToString()));
+        if (exclusion)
+            return $"{CharExclude}{inline}";
         return inline;
     }
 
-    public readonly ReadOnlyMemory<char>[]? Alternatives = alternatives;
-
-    public readonly bool Exclusion = exclusion;
+    public readonly ReadOnlyMemory<char>[]? Alternatives => alternatives;
+    public readonly bool Exclusion => exclusion;
+    public readonly bool Any => alternatives is null || alternatives.Length == 0;
 
     public static Part[] ParsePath(string? path)
     {
@@ -128,10 +129,10 @@ internal readonly struct Part(ReadOnlyMemory<char>[]? alternatives, bool exclusi
 
     public static bool Intersects(ref Part lhs, ref Part rhs, bool allowNull)
     {
-        if (lhs.Alternatives == null)
+        if (lhs.Alternatives is null)
             return true;
 
-        if (rhs.Alternatives == null)
+        if (rhs.Alternatives is null)
             return allowNull;
 
         bool shouldIntersect = !(lhs.Exclusion ^ rhs.Exclusion);

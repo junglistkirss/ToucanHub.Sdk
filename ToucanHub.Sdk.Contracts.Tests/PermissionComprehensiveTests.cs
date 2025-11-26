@@ -23,8 +23,8 @@ public class PermissionComprehensiveTests
     [InlineData("customer.42@read,write", "customer.42.sub@read", true)]
     public void Allows_Combinations(string permStr, string requestedStr, bool expected)
     {
-        var perm = new Permission(permStr);
-        var requested = new Permission(requestedStr);
+        Permission perm = new(permStr);
+        Permission requested = new(requestedStr);
 
         Assert.Equal(expected, perm.Allows(requested));
     }
@@ -43,8 +43,8 @@ public class PermissionComprehensiveTests
     [InlineData("customer.42@*", "customer.42.sub@write", true)]
     public void Includes_Combinations(string permStr, string requestedStr, bool expected)
     {
-        var perm = new Permission(permStr);
-        var requested = new Permission(requestedStr);
+        Permission perm = new(permStr);
+        Permission requested = new(requestedStr);
 
         Assert.Equal(expected, perm.Includes(requested));
     }
@@ -59,7 +59,7 @@ public class PermissionComprehensiveTests
     [InlineData("order.*@read", "order.*", "read")]
     public void ParsesOperationsCorrectly(string input, string expectedScope, string expectedOps)
     {
-        var perm = new Permission(input);
+        Permission perm = new(input);
 
         // Scope vérifié sur la chaîne brute (part)
         Assert.Equal(expectedScope, perm.Scope);
@@ -67,7 +67,7 @@ public class PermissionComprehensiveTests
         // Vérifie les opérations
         Assert.Equal(
             expectedOps.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.ToLowerInvariant()),
-            perm.Operations
+            perm.Operations.Select(x => x.ToString())
         );
     }
 }

@@ -4,7 +4,6 @@ namespace ToucanHub.Sdk.Contracts.Tests;
 
 public class PermissionWithOperationsTests
 {
-    // --- Parsing des opérations multiples ---
     [Theory]
     [InlineData("customer.42@read", "customer.42", "read")]
     [InlineData("customer.42@read,write", "customer.42", "read,write")]
@@ -14,16 +13,15 @@ public class PermissionWithOperationsTests
     [InlineData("service.12@*", "service.12", "*")]
     public void Permission_ParsesOperationsCorrectly(string input, string expectedScope, string expectedOps)
     {
-        var perm = new Permission(input);
+        Permission perm = new(input);
 
         Assert.Equal(expectedScope, string.Join('.', perm.Scope));
         Assert.Equal(
             expectedOps.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.ToLowerInvariant()),
-            perm.Operations
+            perm.Operations.Select(x => x.ToString())
         );
     }
 
-    // --- Validation des opérations ---
     [Theory]
     [InlineData("customer.42@read")]
     [InlineData("customer.42@read,write")]
@@ -31,11 +29,10 @@ public class PermissionWithOperationsTests
     public void Permission_OperationsAreValid(string input)
     {
         string[] AllowedOps = ["read", "write", "delete"];
-        var perm = new Permission(input); // ne doit pas throw
-        Assert.All(perm.Operations, op => AllowedOps.Contains(op));
+        Permission perm = new(input); // ne doit pas throw
+        Assert.All(perm.Operations, op => AllowedOps.Contains(op.Value));
     }
 
-    // --- Allows avec opérations multiples ---
     [Theory]
     [InlineData("customer.42@read,write", "customer.42@read", true)]
     [InlineData("customer.42@read,write", "customer.42@write", true)]
@@ -47,13 +44,12 @@ public class PermissionWithOperationsTests
     [InlineData("customer.42@read", "customer.42@read,write", false)]
     public void Permission_AllowsOperationsCorrectly(string permStr, string requestedStr, bool expected)
     {
-        var perm = new Permission(permStr);
-        var requested = new Permission(requestedStr);
+        Permission perm = new(permStr);
+        Permission requested = new(requestedStr);
 
         Assert.Equal(expected, perm.Allows(requested));
     }
 
-    // --- Includes (PartialCovers) avec scope seulement ---
     [Theory]
     [InlineData("customer.42@read,write", "customer.42@read", true)]
     [InlineData("customer.*@read,write", "customer.123@delete", true)] // inclusion scope ok même si opérations diffèrent
@@ -61,8 +57,8 @@ public class PermissionWithOperationsTests
     [InlineData("customer.42@read", "customer.43@read", false)]
     public void Permission_IncludesScopeCorrectly(string permStr, string requestedStr, bool expected)
     {
-        var perm = new Permission(permStr);
-        var requested = new Permission(requestedStr);
+        Permission perm = new(permStr);
+        Permission requested = new(requestedStr);
 
         Assert.Equal(expected, perm.Includes(requested));
     }

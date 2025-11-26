@@ -6,8 +6,9 @@ namespace ToucanHub.Sdk.Contracts.Extensions;
 public static class UserExtensions
 {
     public static Area[] GetScopes(this ClaimsPrincipal principal)
-        => [.. principal.FindAll(TokenClaimNames.scope).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new Area(v))];
+        => [.. principal.FindAll(ExtraClaimTypes.Scope).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new Area(v))];
 
+    [Obsolete("Permissions are not parsed, roles will not have any permissions")]
     public static Role[] GetRoles(this ClaimsPrincipal principal)
         => [.. principal.FindAll(ClaimTypes.Role).Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).Select(v => new Role(v))];
 

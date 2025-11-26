@@ -137,8 +137,8 @@ public readonly struct DomainId : IEquatable<DomainId>, IComparable<DomainId>, I
     }
     public static DomainId Combine(params DomainId[] ids)
     {
-        var next = Empty;
-        foreach (var id in ids)
+        DomainId next = Empty;
+        foreach (DomainId id in ids)
             next = CombineInternal(next, id);
         return next;
     }

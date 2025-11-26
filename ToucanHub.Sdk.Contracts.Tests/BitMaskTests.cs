@@ -7,9 +7,9 @@ public class BitMaskTests
     [Fact]
     public void Test()
     {
-        var read = new BitMask(0b001);
-        var write = new BitMask(0b010);
-        var readWrite = new BitMask(0b011);
+        BitMask read = new(0b001);
+        BitMask write = new(0b010);
+        BitMask readWrite = new(0b011);
 
         Assert.False(read.Intersects(write));
         Assert.True(read.Intersects(readWrite));
