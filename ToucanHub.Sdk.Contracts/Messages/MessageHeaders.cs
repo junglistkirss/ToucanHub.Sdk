@@ -49,7 +49,7 @@ public readonly record struct MessageHeaders : ISignal
     {}
     public ImmutableHashSet<Metadata> Metadatas { get; init; } = [];
 
-    public DateTimeOffset Timestamp => ResolveTimestamp();//{ get; [Obsolete("Use Metadatas collections")] init; }
-    public ActorReference Issuer => ResolveIssuer();//{ get; [Obsolete("Use Metadatas collections")] init; }
-    public Tenant Origin => ResolveOrigin();//{ get; [Obsolete("Use Metadatas collections")] init; }
+    public DateTimeOffset Timestamp => ResolveTimestamp();
+    public ActorReference Issuer => ResolveIssuer();
+    public Tenant Origin => ResolveOrigin();
 }

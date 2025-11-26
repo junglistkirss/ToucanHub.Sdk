@@ -41,30 +41,6 @@ public sealed class TypeNameRegistry : ITypeNameRegistry
         }
     }
 
-    //public IEnumerable<KeyValuePair<Type, string>> CompatibleWith<T>()
-    //    => namesByType.Where(x => x.Key.IsAssignableTo(typeof(T)));
-    //public IEnumerable<KeyValuePair<Type, string>> CompatibleWith(Type type)
-    //    => namesByType.Where(x => x.Key.IsAssignableTo(type));
-    //public TypeNameRegistry MapObsolete(Type type, string name)
-    //{
-    //    ArgumentNullException.ThrowIfNull(type);
-    //    ArgumentNullException.ThrowIfNull(name);
-
-    //    lock (namesByType)
-    //    {
-    //        if (typesByName.TryGetValue(name, out Type? existingType) && existingType != type)
-    //        {
-    //            string? message = $"The name '{name}' is already registered with type '{typesByName[name]}'";
-
-    //            throw new ArgumentException(message, nameof(type));
-    //        }
-
-    //        typesByName[name] = type;
-    //    }
-
-    //    return this;
-    //}
-
     public TypeNameRegistry Map(ITypeProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
