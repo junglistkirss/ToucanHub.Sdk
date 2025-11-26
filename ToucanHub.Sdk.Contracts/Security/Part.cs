@@ -2,10 +2,19 @@
 
 internal readonly struct Part(ReadOnlyMemory<char>[]? alternatives, bool exclusion)
 {
+    internal const char SeparatorMain = '.';
     private const char SeparatorAlternative = '|';
-    private const char SeparatorMain = '.';
     private const char CharAny = '*';
     private const char CharExclude = '^';
+
+    public override string ToString()
+    {
+        if (Alternatives is null || Alternatives.Length == 0)
+            return $"{CharAny}";
+        string inline = string.Join(SeparatorAlternative, Alternatives.Select(x => x.ToString()));
+        if (Exclusion) return $"{CharExclude}{inline}";
+        return inline;
+    }
 
     public readonly ReadOnlyMemory<char>[]? Alternatives = alternatives;
 
