@@ -1,5 +1,6 @@
 ﻿namespace ToucanHub.Sdk.Contracts.Security;
 
+[Obsolete("Please clone outside, this class will be deleted soon", true)]
 public class JwtTokenConfig
 {
     public static readonly JwtTokenConfig Default = new();
