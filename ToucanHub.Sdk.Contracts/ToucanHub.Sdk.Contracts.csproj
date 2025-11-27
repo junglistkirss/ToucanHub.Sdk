@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>ToucanHub.Sdk.Contracts</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Contracts</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/ToucanHub.Sdk.git</RepositoryUrl>

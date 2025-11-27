@@ -38,7 +38,7 @@ public struct Versioning : IEquatable<Versioning>, IComparable<Versioning>
         if (BitConverter.IsLittleEndian)
             raw = [.. raw.Reverse()];
 
-        return BitConverter.ToString(raw).Replace("-", "");
+        return Convert.ToHexString(raw);
     }
     public readonly bool Equals(Versioning other) => Value.Equals(other.Value);
 
