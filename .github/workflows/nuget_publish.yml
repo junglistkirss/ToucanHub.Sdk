@@ -24,7 +24,7 @@ jobs:
       run: dotnet build ./ToucanHub.Sdk.slnx --configuration Release --no-restore
     - name: Tests
       run: dotnet test ./ToucanHub.Sdk.slnx --verbosity normal
-    - name: NuGet
+    - name: Create packages
       run: dotnet pack ./ToucanHub.Sdk.slnx --configuration Release -o ./nupkgs
-    - name: Push to GitHub package registry
+    - name: Push to Nuget
       run: dotnet nuget push ./nupkgs/*.nupkg --api-key "${{ secrets.PUBLIC_NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
