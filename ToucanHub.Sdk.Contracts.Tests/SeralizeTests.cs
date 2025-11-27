@@ -1,11 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using ToucanHub.Sdk.Contracts.JsonData;
-using ToucanHub.Sdk.Contracts.Messages;
 using ToucanHub.Sdk.Contracts.Names;
 using ToucanHub.Sdk.Contracts.Registry;
 
 namespace ToucanHub.Sdk.Contracts.Tests;
+
+internal interface IMessageTest { }
 
 public class SeralizeTests
 {
@@ -14,7 +15,7 @@ public class SeralizeTests
         if (jsonTypeInfo.Kind == JsonTypeInfoKind.None)
             return;
 
-        Type type = typeof(EventMessage);
+        Type type = typeof(IMessageTest);
         if (type == jsonTypeInfo.Type)
         {
             jsonTypeInfo.PolymorphismOptions = new JsonPolymorphismOptions
@@ -42,13 +43,13 @@ public class SeralizeTests
         });
     }
 
-    private sealed record TestEvent1(Slug Key) : EventMessage;
-    private sealed record TestEvent2(Slug OtherKey) : EventMessage;
+    private sealed record TestEvent1(Slug Key) : IMessageTest;
+    private sealed record TestEvent2(Slug OtherKey) : IMessageTest;
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "$my-type")]
     [JsonDerivedType(typeof(ImplementationEvent1), "implem1")]
     [JsonDerivedType(typeof(ImplementationEvent2), "implem2")]
-    private abstract record AbstractEvent() : EventMessage;
+    private abstract record AbstractEvent() : IMessageTest;
     private sealed record ImplementationEvent1() : AbstractEvent;
     private sealed record ImplementationEvent2() : AbstractEvent;
     private sealed record RawEvent(byte[] Values) : AbstractEvent;
@@ -59,12 +60,12 @@ public class SeralizeTests
         TypeNameRegistry.Instance.Map<TestEvent1>("test event 1");
         TypeNameRegistry.Instance.Map<TestEvent2>("test event 2");
 
-        EventMessage[] dat = [
+        IMessageTest[] dat = [
                 new TestEvent1("test1"),
                 new TestEvent2("test2")
             ];
         string inline = JsonDataSerializer.Stringify(dat);
-        EventMessage[] deserialized = JsonDataSerializer.FastRead<EventMessage[]>(inline);
+        IMessageTest[] deserialized = JsonDataSerializer.FastRead<IMessageTest[]>(inline);
         Assert.True(dat.SequenceEqual(deserialized));
     }
 
