@@ -3,8 +3,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 namespace ToucanHub.Sdk.Pipeline;
-
-public interface IPipelineContext { }
 public abstract class PipelineContext : IPipelineContext
 {
     protected PipelineContext()

@@ -1,11 +1,12 @@
-﻿using ToucanHub.Sdk.Pipeline.Exceptions;
+﻿using System.ComponentModel.DataAnnotations;
+using ToucanHub.Sdk.Pipeline.Exceptions;
 
 namespace ToucanHub.Sdk.Pipeline.Internal;
 
-internal sealed class AsyncPipeline<TContext>(IEnumerable<AsyncRichMiddlewareHandle<TContext>> middlewares) : IAsyncPipeline<TContext>
+internal sealed class AsyncPipeline<TContext>(IEnumerable<IAsyncPipelineBehavior<TContext>> middlewares) : IAsyncPipeline<TContext>
     where TContext : IPipelineContext
 {
-    private readonly AsyncRichMiddlewareHandle<TContext>[] _middlewares = [.. middlewares];
+    private readonly IEnumerator<IAsyncPipelineBehavior<TContext>> _middlewares = middlewares.GetEnumerator();
 
     public ValueTask ExecuteAsync(TContext context)
     {
@@ -13,10 +14,8 @@ internal sealed class AsyncPipeline<TContext>(IEnumerable<AsyncRichMiddlewareHan
         return execution.RunAsync(context);
     }
 
-    private sealed class PipelineExecution(AsyncRichMiddlewareHandle<TContext>[] middlewares)
+    private sealed class PipelineExecution(IEnumerator<IAsyncPipelineBehavior<TContext>> middlewareEnumerator)
     {
-        private int _index = -1;
-
         public async ValueTask RunAsync(TContext context)
         {
             try
@@ -35,12 +34,9 @@ internal sealed class AsyncPipeline<TContext>(IEnumerable<AsyncRichMiddlewareHan
 
         private ValueTask NextAsync(TContext context)
         {
-            int currentIndex = Interlocked.Increment(ref _index);
-
-            if (currentIndex >= middlewares.Length)
+            if(!middlewareEnumerator.MoveNext())
                 return ValueTask.CompletedTask;
-
-            AsyncRichMiddlewareHandle<TContext> middleware = middlewares[currentIndex];
+            IAsyncPipelineBehavior<TContext> middleware = middlewareEnumerator.Current;
 
             bool nextCalled = false;
 
@@ -52,9 +48,7 @@ internal sealed class AsyncPipeline<TContext>(IEnumerable<AsyncRichMiddlewareHan
                 nextCalled = true;
                 return NextAsync(context);
             }
-            return middleware(context, Next);
+            return middleware.InvokeAsync(context, Next);
         }
     }
 }
-
-

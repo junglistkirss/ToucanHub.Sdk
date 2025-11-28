@@ -6,8 +6,8 @@ namespace ToucanHub.Sdk.Pipeline.Tests;
 
 public class PipelineTest : IDisposable
 {
-    private static MiddlewareTermination<CounterContext> MiddlewareAction(string i) => ctx => ctx.Counter.Add(i);
-    private static AsyncMiddlewareTermination<CounterContext> MiddlewareAsyncAction(string i) => ctx => { ctx.Counter.Add(i); return ValueTask.CompletedTask; };
+    private static MiddlewareAction<CounterContext> MiddlewareAction(string i) => ctx => ctx.Counter.Add(i);
+    private static AsyncMiddlewareAction<CounterContext> MiddlewareAsyncAction(string i) => ctx => { ctx.Counter.Add(i); return ValueTask.CompletedTask; };
 
     private static MiddlewareHandle<CounterContext> MiddlewareHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); next(); };
     private static AsyncMiddlewareHandle<CounterContext> MiddlewareAsyncHandle(string i) => (ctx, next) => { ctx.Counter.Add(i); return next(); };
@@ -163,8 +163,8 @@ public class PipelineTest : IDisposable
            .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
            .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
-           .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
-           .Then(asyncMiddlewareSimple)
+           .ThenAsync(RichMiddlewareAsyncHandle("RichAsyncHandle"))
+           .ThenAsync(asyncMiddlewareSimple)
            .Terminate(MiddlewareAction("Action"))
            .TerminateAsync(MiddlewareAsyncAction("AsyncAction"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
@@ -202,8 +202,8 @@ public class PipelineTest : IDisposable
            .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
            .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
-           .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
-           .Then(asyncMiddlewareSimple)
+           .ThenAsync(RichMiddlewareAsyncHandle("RichAsyncHandle"))
+           .ThenAsync(asyncMiddlewareSimple)
            .TerminateAsync(MiddlewareAsyncAction("AsyncAction"))
            .Terminate(MiddlewareAction("Action"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
@@ -235,11 +235,11 @@ public class PipelineTest : IDisposable
     {
         AsyncPipelineBuilder<CounterContext> builder = AsyncPipelineBuilder<CounterContext>
             .CreateBuilder()
-            .TerminateAsync(new AsyncMiddlewareTermination<CounterContext>((ctx) =>
+            .TerminateAsync(new AsyncMiddlewareAction<CounterContext>((ctx) =>
            {
                throw new NotImplementedException();
            }))
-            .Then((ctx, next) => next(ctx));
+            .ThenAsync((ctx, next) => next(ctx));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
