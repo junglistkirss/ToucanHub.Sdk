@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection.Metadata;
 using ToucanHub.Sdk.Pipeline.Internal;
 
 namespace ToucanHub.Sdk.Pipeline;
@@ -16,92 +17,281 @@ public sealed class AsyncPipelineBuilder<TContext>
     private readonly List<ServiceDescriptor> descriptors = [];
     private readonly ServiceLifetime serviceLifetime;
 
-    private ServiceDescriptor FromFactory(Func<IServiceProvider, AsyncRichMiddlewareHandle<TContext>> func)
-    {
-        return ServiceDescriptor.Describe(typeof(AsyncRichMiddlewareHandle<TContext>), func, serviceLifetime);
-    }
 
-    private ServiceDescriptor Create<T>(Func<T, AsyncRichMiddlewareHandle<TContext>> handle)
-        where T : class
-    {
-        return ServiceDescriptor.Describe(typeof(AsyncRichMiddlewareHandle<TContext>), (s) => handle(s.GetRequiredService<T>()), serviceLifetime);
-    }
 
-    // public AsyncPipelineBuilder<TContext> Then(AsyncRichMiddlewareHandle<TContext> handle)
-    // {
-    //     descriptors.Add(FromFactory((s) => handle));
-    //     return this;
-    // }
-    public AsyncPipelineBuilder<TContext> TerminateAsync(AsyncMiddlewareTermination<TContext> handle)
+    public AsyncPipelineBuilder<TContext> Use<TBehavior>(ServiceLifetime? behaviorLifetime = null)
+        where TBehavior : class, IAsyncPipelineBehavior<TContext>
     {
-        descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(ctx))));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), typeof(TBehavior), behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> Terminate(MiddlewareTermination<TContext> handle)
+    public AsyncPipelineBuilder<TContext> Use<TBehavior>(Func<IServiceProvider, TBehavior> factory, ServiceLifetime? behaviorLifetime = null)
+        where TBehavior : class, IAsyncPipelineBehavior<TContext>
     {
-        descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) =>
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), factory, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Use<TBehavior>(Func<TBehavior> factory, ServiceLifetime? behaviorLifetime = null)
+        where TBehavior : class, IAsyncPipelineBehavior<TContext>
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => factory(), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Use<TBehavior>(TBehavior instance, ServiceLifetime? behaviorLifetime = null)
+        where TBehavior : class, IAsyncPipelineBehavior<TContext>
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => instance, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+
+
+    #region Delegates
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(AsyncMiddlewareHandle<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorHandle<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(AsyncRichMiddlewareHandle<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehavior<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> TerminateAsync(AsyncMiddlewareAction<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorTermination<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> ContinueAsync(AsyncMiddlewareAction<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorContinuation<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+
+    public AsyncPipelineBuilder<TContext> Then(RichMiddlewareHandle<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineSyncBehavior<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Then(MiddlewareHandle<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorSyncHandle<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Terminate(MiddlewareAction<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorSyncTermination<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Continue(MiddlewareAction<TContext> handle, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (_) => new AsyncPipelineBehaviorSyncContinuation<TContext>(handle), behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    #endregion
+
+    #region Factory
+
+    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncMiddlewareHandle<TContext>> step, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
         {
-            handle(ctx);
-            return ValueTask.CompletedTask;
-        })));
+            AsyncMiddlewareHandle<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorHandle<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> ThenAsync(AsyncMiddlewareHandle<TContext> handle)
+    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncRichMiddlewareHandle<TContext>> step, ServiceLifetime? behaviorLifetime = null)
     {
-        descriptors.Add(FromFactory(_ => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(ctx, () => next(ctx)))));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            AsyncRichMiddlewareHandle<TContext> handle = step(s);
+            return new AsyncPipelineBehavior<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncMiddlewareHandle<TContext>> step)
+    public AsyncPipelineBuilder<TContext> ContinueAsync(MiddlewareFactory<AsyncMiddlewareAction<TContext>> step, ServiceLifetime? behaviorLifetime = null)
     {
-        descriptors.Add(FromFactory((s) => new AsyncRichMiddlewareHandle<TContext>((ctx, next) => step(s)(ctx, () => next(ctx)))));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            AsyncMiddlewareAction<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorContinuation<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> ThenAsync(MiddlewareFactory<AsyncRichMiddlewareHandle<TContext>> step)
+    public AsyncPipelineBuilder<TContext> TerminateAsync(MiddlewareFactory<AsyncMiddlewareAction<TContext>> step, ServiceLifetime? behaviorLifetime = null)
     {
-        descriptors.Add(FromFactory((s) => step(s)));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            AsyncMiddlewareAction<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorTermination<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> Then(AsyncRichMiddlewareHandle<TContext> handle)
+
+    public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<MiddlewareHandle<TContext>> step, ServiceLifetime? behaviorLifetime = null)
     {
-        descriptors.Add(FromFactory((s) => handle));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            MiddlewareHandle<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorSyncHandle<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncRichMiddlewareHandle<TContext>> handle)
+    public AsyncPipelineBuilder<TContext> Then(MiddlewareFactory<RichMiddlewareHandle<TContext>> step, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            RichMiddlewareHandle<TContext> handle = step(s);
+            return new AsyncPipelineSyncBehavior<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Continue(MiddlewareFactory<MiddlewareAction<TContext>> step, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            MiddlewareAction<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorSyncContinuation<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Terminate(MiddlewareFactory<MiddlewareAction<TContext>> step, ServiceLifetime? behaviorLifetime = null)
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            MiddlewareAction<TContext> handle = step(s);
+            return new AsyncPipelineBehaviorSyncTermination<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    #endregion
+
+    #region Dependency
+
+    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncRichMiddlewareHandle<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
        where T : class
     {
-        descriptors.Add(Create(handle));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            AsyncRichMiddlewareHandle<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehavior<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncMiddlewareHandle<TContext>> handle)
+    public AsyncPipelineBuilder<TContext> ThenAsync<T>(Func<T, AsyncMiddlewareHandle<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
        where T : class
     {
-        descriptors.Add(Create<T>(
-            (src) =>
-                new AsyncRichMiddlewareHandle<TContext>((ctx, next) => handle(src)(ctx, () => next(ctx)))
-            ));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            AsyncMiddlewareHandle<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorHandle<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
 
-    public AsyncPipelineBuilder<TContext> TerminateAsync<T>(Func<T, AsyncMiddlewareTermination<TContext>> handle)
+    public AsyncPipelineBuilder<TContext> TerminateAsync<T>(Func<T, AsyncMiddlewareAction<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
        where T : class
     {
-        descriptors.Add(Create<T>(
-            (src) =>
-                new AsyncRichMiddlewareHandle<TContext>((ctx, _) => handle(src)(ctx))
-            ));
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            AsyncMiddlewareAction<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorTermination<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
         return this;
     }
+
+    public AsyncPipelineBuilder<TContext> ContinueAsync<T>(Func<T, AsyncMiddlewareAction<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
+       where T : class
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            AsyncMiddlewareAction<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorContinuation<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+
+    public AsyncPipelineBuilder<TContext> Then<T>(Func<T, RichMiddlewareHandle<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
+      where T : class
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            RichMiddlewareHandle<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineSyncBehavior<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Then<T>(Func<T, MiddlewareHandle<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
+       where T : class
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            MiddlewareHandle<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorSyncHandle<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Terminate<T>(Func<T, MiddlewareAction<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
+       where T : class
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            MiddlewareAction<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorSyncTermination<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    public AsyncPipelineBuilder<TContext> Continue<T>(Func<T, MiddlewareAction<TContext>> handleProvider, ServiceLifetime? behaviorLifetime = null)
+       where T : class
+    {
+        descriptors.Add(ServiceDescriptor.Describe(typeof(IAsyncPipelineBehavior<TContext>), (s) =>
+        {
+            T dependency = s.GetRequiredService<T>();
+            MiddlewareAction<TContext> handle = handleProvider(dependency);
+            return new AsyncPipelineBehaviorSyncContinuation<TContext>(handle);
+        }, behaviorLifetime ?? serviceLifetime));
+        return this;
+    }
+
+    #endregion
+
 
     public IAsyncPipeline<TContext> Build(IServiceProvider serviceProvider)
     {
-        return new AsyncPipeline<TContext>(serviceProvider.GetServices<AsyncRichMiddlewareHandle<TContext>>());
+        return new AsyncPipeline<TContext>(serviceProvider.GetServices<IAsyncPipelineBehavior<TContext>>());
     }
 
     public void Register(IServiceCollection serviceDescriptors)

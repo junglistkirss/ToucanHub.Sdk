@@ -94,12 +94,12 @@ public delegate ValueTask AsyncMiddlewareHandle<TContext>(TContext context, Next
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <param name="context"></param>
-public delegate void MiddlewareTermination<TContext>(TContext context) where TContext : IPipelineContext;
+public delegate void MiddlewareAction<TContext>(TContext context) where TContext : IPipelineContext;
 
 /// <summary>
 /// Asynchronous termination, next middleware is never called
 /// </summary>
 /// <typeparam name="TContext"></typeparam>
 /// <param name="context"></param>
-public delegate ValueTask AsyncMiddlewareTermination<TContext>(TContext context) where TContext : IPipelineContext;
+public delegate ValueTask AsyncMiddlewareAction<TContext>(TContext context) where TContext : IPipelineContext;
 #endregion

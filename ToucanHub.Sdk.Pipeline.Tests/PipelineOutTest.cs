@@ -20,12 +20,12 @@ internal sealed class Dependency
 
 public class PipelineOutTest : IDisposable
 {
-    private static MiddlewareTermination<CounterContextWithOutput> MiddlewareAction(string i, string result) => ctx =>
+    private static MiddlewareAction<CounterContextWithOutput> MiddlewareAction(string i, string result) => ctx =>
     {
         ctx.Counter.Add(i);
         ctx.Output = result;
     };
-    private static AsyncMiddlewareTermination<CounterContextWithOutput> MiddlewareAsyncAction(string i, string result) => async ctx =>
+    private static AsyncMiddlewareAction<CounterContextWithOutput> MiddlewareAsyncAction(string i, string result) => async ctx =>
     {
         ctx.Counter.Add(i);
         ctx.Output = result;
@@ -352,8 +352,8 @@ public class PipelineOutTest : IDisposable
            .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
            .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
-           .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
-           .Then(asyncMiddlewareSimple)
+           .ThenAsync(RichMiddlewareAsyncHandle("RichAsyncHandle"))
+           .ThenAsync(asyncMiddlewareSimple)
            .Terminate(MiddlewareAction("Action", "output1"))
            .TerminateAsync(MiddlewareAsyncAction("AsyncAction", "output2"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
@@ -393,8 +393,8 @@ public class PipelineOutTest : IDisposable
            .ThenAsync(MiddlewareAsyncFactory("AsyncFactory"))
            //.Then(middlewareHandle)
            .ThenAsync(MiddlewareAsyncHandle("AsyncHandle"))
-           .Then(RichMiddlewareAsyncHandle("RichAsyncHandle"))
-           .Then(asyncMiddlewareSimple)
+           .ThenAsync(RichMiddlewareAsyncHandle("RichAsyncHandle"))
+           .ThenAsync(asyncMiddlewareSimple)
            .TerminateAsync(MiddlewareAsyncAction("AsyncAction", "output1"))
            .Terminate(MiddlewareAction("Action", "output2"));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
@@ -428,7 +428,7 @@ public class PipelineOutTest : IDisposable
     {
         PipelineBuilder<CounterContextWithOutput> builder = PipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-           .Terminate(new MiddlewareTermination<CounterContextWithOutput>((ctx) =>
+           .Terminate(new MiddlewareAction<CounterContextWithOutput>((ctx) =>
            {
                throw new NotImplementedException();
            }))
@@ -447,11 +447,11 @@ public class PipelineOutTest : IDisposable
     {
         AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-           .TerminateAsync(new AsyncMiddlewareTermination<CounterContextWithOutput>((ctx) =>
+           .TerminateAsync(new AsyncMiddlewareAction<CounterContextWithOutput>((ctx) =>
            {
                throw new NotImplementedException();
            }))
-           .Then((ctx, next) => next(ctx));
+           .ThenAsync((ctx, next) => next(ctx));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
@@ -503,7 +503,7 @@ public class PipelineOutTest : IDisposable
     {
         AsyncPipelineBuilder<CounterContextWithOutput> builder = AsyncPipelineBuilder<CounterContextWithOutput>
             .CreateBuilder()
-           .Then((ctx, next) => next(ctx));
+           .ThenAsync((ctx, next) => next(ctx));
         IServiceCollection descriptors = new ServiceCollection().UsePipelines();
         builder.Register(descriptors);
         IServiceProvider serviceProvider = descriptors.BuildServiceProvider();
