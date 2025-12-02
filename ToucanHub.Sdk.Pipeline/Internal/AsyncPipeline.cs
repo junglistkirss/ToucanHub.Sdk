@@ -6,10 +6,10 @@ namespace ToucanHub.Sdk.Pipeline.Internal;
 internal sealed class AsyncPipeline<TContext>(IEnumerable<IAsyncPipelineBehavior<TContext>> middlewares) : IAsyncPipeline<TContext>
     where TContext : IPipelineContext
 {
-    private readonly IEnumerator<IAsyncPipelineBehavior<TContext>> _middlewares = middlewares.GetEnumerator();
 
     public ValueTask ExecuteAsync(TContext context)
     {
+        using IEnumerator<IAsyncPipelineBehavior<TContext>> _middlewares = middlewares.GetEnumerator();
         PipelineExecution execution = new(_middlewares);
         return execution.RunAsync(context);
     }
@@ -34,7 +34,7 @@ internal sealed class AsyncPipeline<TContext>(IEnumerable<IAsyncPipelineBehavior
 
         private ValueTask NextAsync(TContext context)
         {
-            if(!middlewareEnumerator.MoveNext())
+            if (!middlewareEnumerator.MoveNext())
                 return ValueTask.CompletedTask;
             IAsyncPipelineBehavior<TContext> middleware = middlewareEnumerator.Current;
 

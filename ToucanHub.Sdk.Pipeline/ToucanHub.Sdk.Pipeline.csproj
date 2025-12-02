@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>ToucanHub.Sdk.Pipeline</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Pipeline</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/ToucanHub.Sdk.git</RepositoryUrl>

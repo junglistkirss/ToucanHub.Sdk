@@ -6,10 +6,10 @@ namespace ToucanHub.Sdk.Pipeline.Internal;
 internal sealed class Pipeline<TContext>(IEnumerable<IPipelineBehavior<TContext>> middlewares) : IPipeline<TContext>
         where TContext : IPipelineContext
 {
-    private readonly IEnumerator<IPipelineBehavior<TContext>> _middlewareEnumerator = middlewares.GetEnumerator();
 
     public void Execute(TContext context)
     {
+        using IEnumerator<IPipelineBehavior<TContext>> _middlewareEnumerator = middlewares.GetEnumerator();
         bool nextCalled = false;
 
         void Next(TContext ctx)
