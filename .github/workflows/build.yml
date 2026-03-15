@@ -22,7 +22,7 @@ jobs:
       run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Merge Coverage Reports
-      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
+      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.4
       with:
         reports: ./coverage/**/coverage.cobertura.xml
         targetdir: ./coveragereport
@@ -42,7 +42,7 @@ jobs:
         thresholds: '${{ vars.MIN_COVERAGE_THRESHOLD || 1 }} 80'
 
     - name: Add Coverage PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
+      uses: marocchino/sticky-pull-request-comment@v3
       if: github.event_name == 'pull_request'
       with:
         recreate: true
