@@ -1,12 +1,25 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using ToucanHub.Sdk.Contracts.JsonData;
 using ToucanHub.Sdk.Contracts.Names;
-using ToucanHub.Sdk.Contracts.Registry;
 
 namespace ToucanHub.Sdk.Contracts.Tests;
 
 internal interface IMessageTest { }
+internal sealed record TestEvent1(Slug Key) : IMessageTest;
+internal sealed record TestEvent2(Slug OtherKey) : IMessageTest;
+
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$my-type")]
+[JsonDerivedType(typeof(ImplementationEvent1), "i1")]
+[JsonDerivedType(typeof(ImplementationEvent2), "i2")]
+[JsonDerivedType(typeof(RawEvent), "raw")]
+internal abstract record AbstractEvent();
+internal sealed record ImplementationEvent1() : AbstractEvent;
+internal sealed record ImplementationEvent2() : AbstractEvent;
+internal sealed record RawEvent(byte[] Values) : AbstractEvent;
+internal sealed record ExtraEvent(byte[] Values) : AbstractEvent;
 
 public class SeralizeTests
 {
@@ -25,8 +38,8 @@ public class SeralizeTests
                 UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor,
                 DerivedTypes =
                     {
-                        new JsonDerivedType(typeof(TestEvent1), "TestEvent1"),
-                        new JsonDerivedType(typeof(TestEvent2), "TestEvent2")
+                        new JsonDerivedType(typeof(TestEvent1), nameof(TestEvent1)),
+                        new JsonDerivedType(typeof(TestEvent2), nameof(TestEvent2))
                     }
             };
         }
@@ -43,46 +56,65 @@ public class SeralizeTests
         });
     }
 
-    private sealed record TestEvent1(Slug Key) : IMessageTest;
-    private sealed record TestEvent2(Slug OtherKey) : IMessageTest;
-
-    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$my-type")]
-    [JsonDerivedType(typeof(ImplementationEvent1), "implem1")]
-    [JsonDerivedType(typeof(ImplementationEvent2), "implem2")]
-    private abstract record AbstractEvent() : IMessageTest;
-    private sealed record ImplementationEvent1() : AbstractEvent;
-    private sealed record ImplementationEvent2() : AbstractEvent;
-    private sealed record RawEvent(byte[] Values) : AbstractEvent;
 
     [Fact]
     public void BatchSerialisation()
     {
-        TypeNameRegistry.Instance.Map<TestEvent1>("test event 1");
-        TypeNameRegistry.Instance.Map<TestEvent2>("test event 2");
-
         IMessageTest[] dat = [
                 new TestEvent1("test1"),
                 new TestEvent2("test2")
             ];
-        string inline = JsonDataSerializer.Stringify(dat);
-        IMessageTest[] deserialized = JsonDataSerializer.FastRead<IMessageTest[]>(inline);
+        string? inline = JsonDataSerializer.Stringify(dat);
+        IMessageTest[]? deserialized = JsonDataSerializer.FastRead<IMessageTest[]>(inline);
+        Assert.NotNull(deserialized);
         Assert.True(dat.SequenceEqual(deserialized));
     }
 
     [Fact]
+    public async Task BatchSerialisationAsync()
+    {
+        IMessageTest[] dat = [
+                new TestEvent1("test1"),
+                new TestEvent2("test2")
+            ];
+        using MemoryStream stream = new();
+        await JsonDataSerializer.FastWriteAsync(stream, dat, TestContext.Current.CancellationToken);
+        await stream.FlushAsync(TestContext.Current.CancellationToken);
+        stream.Position = 0;
+
+        using MemoryStream streamCopy = new();
+        await stream.CopyToAsync(streamCopy, TestContext.Current.CancellationToken);
+        await streamCopy.FlushAsync(TestContext.Current.CancellationToken);
+        streamCopy.Position = 0;
+
+        IMessageTest[]? deserialized = await JsonDataSerializer.FastReadAsync<IMessageTest[]>(streamCopy, TestContext.Current.CancellationToken);
+        Assert.NotNull(deserialized);
+        Assert.True(dat.SequenceEqual(deserialized));
+    }
+    [Fact]
     public void Binary__ImplicitString()
     {
-        string inline = JsonDataSerializer.Stringify(new RawEvent([0xCC]));
-        RawEvent deserialized = JsonDataSerializer.FastRead<RawEvent>(inline);
+        string? inline = JsonDataSerializer.Stringify(new RawEvent([0xCC]));
+        Assert.NotNull(inline);
+        RawEvent? deserialized = JsonDataSerializer.FastRead<RawEvent>(inline);
+        Assert.NotNull(deserialized);
         Assert.Single(deserialized.Values);
         Assert.Equal<byte>(0xCC, deserialized.Values[0]);
+    }
+    
+    [Fact]
+    public void Polymorĥic__MissingFails()
+    {
+        Assert.ThrowsAny<NotSupportedException>(()=> JsonDataSerializer.Stringify<AbstractEvent>(new ExtraEvent([0xCC])));
     }
 
     [Fact]
     public void Abstract__InlineCompare()
     {
-        string inline = JsonDataSerializer.Stringify<AbstractEvent>(new ImplementationEvent1());
-        AbstractEvent deserialized = JsonDataSerializer.FastRead<AbstractEvent>(inline);
+        string? inline = JsonDataSerializer.Stringify<AbstractEvent>(new ImplementationEvent1());
+        Assert.NotNull(inline);
+        AbstractEvent? deserialized = JsonDataSerializer.FastRead<AbstractEvent>(inline);
+        Assert.NotNull(deserialized);
         Assert.True(deserialized is ImplementationEvent1);
     }
 
@@ -91,7 +123,8 @@ public class SeralizeTests
     public void Abstract__ByteCompare()
     {
         byte[] bytes = JsonDataSerializer.FastWrite<AbstractEvent>(new ImplementationEvent1());
-        AbstractEvent deserialized = JsonDataSerializer.FastRead<AbstractEvent>(bytes);
+        AbstractEvent? deserialized = JsonDataSerializer.FastRead<AbstractEvent>(bytes);
+        Assert.NotNull(deserialized);
         Assert.True(deserialized is ImplementationEvent1);
     }
 
@@ -99,8 +132,10 @@ public class SeralizeTests
     public void ObjectSerialization__InlineCompare()
     {
         JsonDataObject dat = new(new Dictionary<string, JsonDataValue> { { "prop1", "string_value" } });
-        string inline = JsonDataSerializer.Stringify(dat);
-        JsonDataObject deserialized = JsonDataSerializer.FastRead<JsonDataObject>(inline);
+        string? inline = JsonDataSerializer.Stringify(dat);
+        Assert.NotNull(inline);
+        JsonDataObject? deserialized = JsonDataSerializer.FastRead<JsonDataObject>(inline);
+        Assert.NotNull(deserialized);
         Assert.Equal(dat, deserialized);
     }
 
@@ -109,16 +144,16 @@ public class SeralizeTests
     {
         JsonDataObject dat = new(new Dictionary<string, JsonDataValue> { { "prop1", "string_value" } });
         byte[] serialized = JsonDataSerializer.FastWrite(dat);
-        JsonDataObject deserialized = JsonDataSerializer.FastRead<JsonDataObject>(serialized);
+        JsonDataObject? deserialized = JsonDataSerializer.FastRead<JsonDataObject>(serialized);
 
+        Assert.NotNull(deserialized);
         Assert.Equal(dat, deserialized);
     }
 
     [Fact]
     public void ObjectDeserialization__Fails()
     {
-        Assert.ThrowsAny<InvalidCastException>(() => JsonDataSerializer.FastRead<JsonDataObject>([0x05, 0x05], typeof(JsonDataArray)));
-        Assert.ThrowsAny<InvalidCastException>(() => JsonDataSerializer.FastRead<JsonDataObject>([], typeof(JsonDataArray)));
+        Assert.ThrowsAny<JsonException>(() => JsonDataSerializer.FastRead<JsonDataObject>([0x05, 0x05], typeof(JsonDataArray)));
     }
 
     [Fact]
@@ -131,7 +166,7 @@ public class SeralizeTests
     [Fact]
     public void ObjectDeserialization__Default()
     {
-        JsonDataObject result = JsonDataSerializer.FastRead<JsonDataObject>([], typeof(JsonDataObject));
+        JsonDataObject? result = JsonDataSerializer.FastRead<JsonDataObject>([], typeof(JsonDataObject));
         Assert.Null(result);
     }
 
@@ -148,7 +183,8 @@ public class SeralizeTests
         JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, 1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
 
         byte[] serialized = JsonDataSerializer.FastWrite(dat);
-        JsonDataArray deserialized = JsonDataSerializer.FastRead<JsonDataArray>(serialized);
+        JsonDataArray? deserialized = JsonDataSerializer.FastRead<JsonDataArray>(serialized);
+        Assert.NotNull(deserialized);
         Assert.Equal(dat.Count, deserialized.Count);
 
         for (int i = 0; i < dat.Count; i++)
@@ -205,7 +241,8 @@ public class SeralizeTests
         JsonDataArray dat = new([(byte)1, (sbyte)1, (ushort)1, (short)1, 1, (uint)1, (long)1, (ulong)1, (float)1.0, (double)1.0, (decimal)1.0, "1"]);
 
         byte[] serialized = JsonDataSerializer.FastWrite(dat);
-        JsonDataArray deserialized = JsonDataSerializer.FastRead<JsonDataArray>(serialized);
+        JsonDataArray? deserialized = JsonDataSerializer.FastRead<JsonDataArray>(serialized);
+        Assert.NotNull(deserialized);
         Assert.Equal(dat.Count, deserialized.Count);
 
         for (int i = 0; i < dat.Count; i++)
@@ -230,7 +267,8 @@ public class SeralizeTests
         JsonDataValue dat = JsonDataValue.Create(new Dictionary<string, object?>() { { "key", 123 } });
 
         byte[] serialized = JsonDataSerializer.FastWrite(dat);
-        JsonDataObject deserialized = JsonDataSerializer.FastRead<JsonDataObject>(serialized);
+        JsonDataObject? deserialized = JsonDataSerializer.FastRead<JsonDataObject>(serialized);
+        Assert.NotNull(deserialized);
         Assert.Equal(123, dat.AsObject()["key"].AsInt());
         Assert.Equal(123, deserialized["key"].AsInt());
     }
@@ -241,7 +279,8 @@ public class SeralizeTests
         IReadOnlyDictionary<Slug, JsonDataObject> dat = new Dictionary<Slug, JsonDataObject>() { { "key", [] } };
 
         byte[] serialized = JsonDataSerializer.FastWrite(dat);
-        IReadOnlyDictionary<Slug, JsonDataObject> deserialized = JsonDataSerializer.FastRead<IReadOnlyDictionary<Slug, JsonDataObject>>(serialized);
+        IReadOnlyDictionary<Slug, JsonDataObject>? deserialized = JsonDataSerializer.FastRead<IReadOnlyDictionary<Slug, JsonDataObject>>(serialized);
+        Assert.NotNull(deserialized);
         Assert.True(dat.SequenceEqual(deserialized));
     }
 }

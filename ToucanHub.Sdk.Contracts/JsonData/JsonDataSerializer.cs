@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -9,39 +10,91 @@ namespace ToucanHub.Sdk.Contracts.JsonData;
 
 public static class JsonDataSerializer
 {
-    public static T FastRead<T>(string inline) => FastRead<T>(inline, typeof(T));
-    public static T FastRead<T>(string inline, Type type) => FastRead<T>(Encoding.UTF8.GetBytes(inline), type);
-
-    public static string Stringify<T>(T message) => Stringify(message, typeof(T));
-    public static string Stringify(object? message, Type type)
+    public static ValueTask FastWriteAsync<T>(Stream stream, T message, CancellationToken cancellationToken = default) => FastWriteAsync(stream, message, typeof(T), cancellationToken);
+    public static async ValueTask FastWriteAsync(Stream stream, object? message, Type type, CancellationToken cancellationToken = default)
     {
+        if (message == null)
+            throw new NullReferenceException("Object to serialize is empty");
+
+        if (_serializerOptionsInstance.TryGetTypeInfo(type, out JsonTypeInfo? typeInfo))
+        {
+            await JsonSerializer.SerializeAsync(stream, message, typeInfo, cancellationToken);
+        }
+        else
+        {
+            await JsonSerializer.SerializeAsync(stream, message, type, _serializerOptionsInstance, cancellationToken);
+        }
+    }
+
+    public static ValueTask<T?> FastReadAsync<T>(Stream stream, CancellationToken cancellationToken = default)
+        => FastReadAsync<T>(stream, typeof(T), cancellationToken);
+
+    public static async ValueTask<T?> FastReadAsync<T>(Stream stream, Type type, CancellationToken cancellationToken = default)
+    {
+        // if (type != typeof(T) && !type.IsAssignableTo(typeof(T)))
+        //     throw new InvalidCastException("Unable to read data, types are incompatibles");
+
+        if (_serializerOptionsInstance.TryGetTypeInfo(type, out JsonTypeInfo? typeInfo) && typeInfo is JsonTypeInfo<T> typed)
+        {
+            return await JsonSerializer.DeserializeAsync(stream, typed, cancellationToken);
+        }
+        object? json = await JsonSerializer.DeserializeAsync(stream, type, _serializerOptionsInstance, cancellationToken);
+        if (json is null)
+            return default;
+        return (T)json;
+    }
+
+    public static T? FastRead<T>(string? inline) => FastRead<T>(inline, typeof(T));
+    public static T? FastRead<T>(string? inline, Type type)
+    {
+        if (string.IsNullOrWhiteSpace(inline))
+            return default;
+        return FastRead<T>(Encoding.UTF8.GetBytes(inline), type);
+    }
+
+    public static string? Stringify<T>(T message) => Stringify(message, typeof(T));
+    public static string? Stringify(object? message, Type type)
+    {
+        if (message is null)
+            return null;
         byte[] dat = FastWrite(message, type);
         return Encoding.UTF8.GetString(dat);
     }
 
-    public static T FastRead<T>(byte[] bytes) => FastRead<T>(bytes, typeof(T));
-    public static T FastRead<T>(byte[] bytes, Type type) => FastRead<T>(bytes.AsSpan(), type);
-    public static T FastRead<T>(Span<byte> bytes, Type type)
+    public static T? FastRead<T>(byte[] bytes)
     {
-        if (type != typeof(T) && !type.IsAssignableTo(typeof(T)))
-            throw new InvalidCastException("Unable to read data, types are incompatibles");
+        if (bytes is null)
+            return default;
+        return FastRead<T>(bytes, typeof(T));
+    }
 
-        if (bytes.Length == 0)
-            return default!;
+    public static T? FastRead<T>(byte[] bytes, Type type)
+    {
+        if (bytes is null)
+            return default;
+        return FastRead<T>(bytes.AsSpan(), type);
+    }
+
+    public static T? FastRead<T>(Span<byte> bytes, Type type)
+    {
+        if (bytes.IsEmpty)
+            return default;
 
         Utf8JsonReader reader = new(bytes, new JsonReaderOptions
         {
             AllowTrailingCommas = true,
         });
         if (_serializerOptionsInstance.TryGetTypeInfo(type, out JsonTypeInfo? typeInfo) && typeInfo is JsonTypeInfo<T> typed)
-            return JsonSerializer.Deserialize(ref reader, typed)!;
+            return JsonSerializer.Deserialize(ref reader, typed);
         object? json = JsonSerializer.Deserialize(ref reader, type, _serializerOptionsInstance);
-        return (T)json!;
+        if (json is null)
+            return default;
+        return (T)json;
     }
     public static byte[] FastWrite<T>(T message) => FastWrite(message, typeof(T));
     public static byte[] FastWrite(object? message, Type type)
     {
-        if (message == null)
+        if (message is null)
             return [];
 
         if (!type.IsAssignableFrom(message.GetType()))
@@ -108,5 +161,4 @@ public static class JsonDataSerializer
         JsonSerializerOptionsConfiguration(options);
         return options;
     }
-
 }
