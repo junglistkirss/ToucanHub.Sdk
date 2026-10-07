@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -9,7 +9,7 @@
 
   <PropertyGroup>
     <PackageId>ToucanHub.Sdk.Contracts</PackageId>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Authors>Christian Bourbier</Authors>    
     <PackageDescription>Sdk Contracts</PackageDescription>
     <RepositoryUrl>https://github.com/junglistkirss/ToucanHub.Sdk.git</RepositoryUrl>

@@ -7,24 +7,35 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 8.0.x
-
+        dotnet-version: 10.0.x
+      
     - name: Restore dependencies
       run: dotnet restore ./ToucanHub.Sdk.slnx
+      
     - name: Build
       run: dotnet build ./ToucanHub.Sdk.slnx --configuration Release --no-restore
-    - name: Tests
+    
+    - name: Test
       run: dotnet test ./ToucanHub.Sdk.slnx --verbosity normal
-    - name: Create packages
+    
+    - name: Pack
       run: dotnet pack ./ToucanHub.Sdk.slnx --configuration Release -o ./nupkgs
-    - name: Push to Nuget
-      run: dotnet nuget push ./nupkgs/*.nupkg --api-key "${{ secrets.PUBLIC_NUGET_TOKEN }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+    
+    - name: NuGet login (OIDC → temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+          user: ${{ secrets.NUGET_USER }}
+          
+    - name: Push
+      run: dotnet nuget push ./nupkgs/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate

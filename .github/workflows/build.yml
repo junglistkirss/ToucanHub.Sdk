@@ -9,41 +9,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Setup .NET
-      uses: actions/setup-dotnet@v5
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./ToucanHub.Sdk.slnx
+    
+    - name: Build
+      run: dotnet build ./ToucanHub.Sdk.slnx --configuration Release --no-restore      
 
     - name: Test
-      run: dotnet test --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+      run: dotnet test ./ToucanHub.Sdk.slnx --verbosity normal
     
-    - name: Merge Coverage Reports
-      uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
-      with:
-        reports: ./coverage/**/coverage.cobertura.xml
-        targetdir: ./coveragereport
-        reporttypes: Cobertura
+    # - name: Merge Coverage Reports
+    #   uses: danielpalme/ReportGenerator-GitHub-Action@5.5.1
+    #   with:
+    #     reports: ./coverage/**/coverage.cobertura.xml
+    #     targetdir: ./coveragereport
+    #     reporttypes: Cobertura
         
-    - name: Code Coverage Report
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      with:
-        filename: ./coveragereport/Cobertura.xml
-        badge: true
-        fail_below_min: false
-        format: markdown
-        hide_branch_rate: false
-        hide_complexity: false
-        indicators: true
-        output: both
-        thresholds: '${{ vars.MIN_COVERAGE_THRESHOLD || 1 }} 80'
+    # - name: Code Coverage Report
+    #   uses: irongut/CodeCoverageSummary@v1.3.0
+    #   with:
+    #     filename: ./coveragereport/Cobertura.xml
+    #     badge: true
+    #     fail_below_min: false
+    #     format: markdown
+    #     hide_branch_rate: false
+    #     hide_complexity: false
+    #     indicators: true
+    #     output: both
+    #     thresholds: '${{ vars.MIN_COVERAGE_THRESHOLD || 1 }} 80'
 
-    - name: Add Coverage PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      if: github.event_name == 'pull_request'
-      with:
-        recreate: true
-        path: code-coverage-results.md
+    # - name: Add Coverage PR Comment
+    #   uses: marocchino/sticky-pull-request-comment@v2
+    #   if: github.event_name == 'pull_request'
+    #   with:
+    #     recreate: true
+    #     path: code-coverage-results.md
