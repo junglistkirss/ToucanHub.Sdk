@@ -17,6 +17,9 @@ jobs:
     
     - name: Restore dependencies
       run: dotnet restore ./ToucanHub.Sdk.slnx
+    
+    - name: Build
+      run: dotnet build ./ToucanHub.Sdk.slnx --configuration Release --no-restore      
 
     - name: Test
       run: dotnet test ./ToucanHub.Sdk.slnx --verbosity normal
